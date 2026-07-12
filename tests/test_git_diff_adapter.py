@@ -126,6 +126,11 @@ class GitDiffAdapterTest(unittest.TestCase):
         git(repo, "init", "-q")
         git(repo, "config", "user.name", "CLU Synthetic Test")
         git(repo, "config", "user.email", "synthetic@example.invalid")
+        # Test fixtures must be quiescent before a metadata lease is acquired.
+        # Git otherwise permits automatic maintenance to detach after writes,
+        # which the adapter correctly treats as a concurrent metadata change.
+        git(repo, "config", "maintenance.auto", "false")
+        git(repo, "config", "gc.auto", "0")
         (repo / "README.md").write_text("# Demo\n\nBaseline.\n", encoding="utf-8")
         git(repo, "add", "README.md")
         git(repo, "commit", "-q", "-m", "baseline")
