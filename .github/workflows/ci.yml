@@ -18,10 +18,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install .
       - name: Explain expected platform skips
         run: echo "Linux runs the complete suite and reports expected skips only for tests requiring successful macOS git-adapt execution."
       - run: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest discover -s tests -q
+      - run: python -m pip install .
       - run: clu-governance --version
       - run: clu-governance protected-source-manifest --json
       - run: clu-governance demo-run-all --json
@@ -34,8 +34,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install .
       - run: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest discover -s tests -q
+      - run: python -m pip install .
       - run: clu-governance --version
       - run: clu-governance protected-source-manifest --json
       - run: clu-governance demo-run-all --json
@@ -48,7 +48,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install .
       - name: Run macOS adapter integration suite without skips
         env:
           PYTHONDONTWRITEBYTECODE: "1"
@@ -80,6 +79,7 @@ jobs:
           if not result.wasSuccessful():
               raise SystemExit(1)
           PY
+      - run: python -m pip install .
       - run: clu-governance git-adapt --help
 
   package_wheel:
