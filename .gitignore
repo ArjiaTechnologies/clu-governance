@@ -1,0 +1,25 @@
+# Python build and test output
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Packaging and editable-install metadata
+build/
+dist/
+*.egg-info/
+*.whl
+*.tar.gz
+
+# Local environments and tools
+.venv/
+venv/
+.env
+.DS_Store
+
+# CLU local/demo output
+clu-governance-demo*/
+*.sqlite
+*.db

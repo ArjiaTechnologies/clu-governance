@@ -1,0 +1,25 @@
+{
+  "actor_identity_source": "caller_declared",
+  "declared_actor_id": "demo_operator",
+  "example_note": "Illustrative schema example. The runnable demo-init path writes a request with a real source-tree hash for its temporary workspace.",
+  "operations": [
+    {
+      "before_sha256": null,
+      "operation": "delete",
+      "path": "clu/danger.py"
+    }
+  ],
+  "proposal_body": {
+    "description": "Attempt to delete source code in the temporary demo repository.",
+    "proposal_id": "demo-proposal-source-delete",
+    "target": "clu/danger.py"
+  },
+  "proposal_hash": "<canonical sha256 of proposal_body>",
+  "proposal_id": "demo-proposal-source-delete",
+  "request_id": "demo-denied-source-deletion",
+  "requested_scope": "docs_only",
+  "schema_name": "clu_governance_source_mutation_request.v1",
+  "schema_version": "1",
+  "source_tree_hash": "<current temporary demo repo tree hash>"
+}
+

@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+# Official stable action major tags are deliberately used here so maintenance
+# updates can be consumed without adding any publication capability to CI.
+jobs:
+  core_linux:
+    name: Core tests (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install .
+      - name: Explain expected platform skips
+        run: echo "Linux runs the complete suite and reports expected skips only for tests requiring successful macOS git-adapt execution."
+      - run: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest discover -s tests -q
+      - run: clu-governance --version
+      - run: clu-governance protected-source-manifest --json
+      - run: clu-governance demo-run-all --json
+
+  core_macos:
+    name: Core tests (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install .
+      - run: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest discover -s tests -q
+      - run: clu-governance --version
+      - run: clu-governance protected-source-manifest --json
+      - run: clu-governance demo-run-all --json
+
+  macos_git_adapter:
+    name: Experimental Git adapter (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install .
+      - name: Run macOS adapter integration suite without skips
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+          PYTHONPATH: src
+        run: |
+          python -B - <<'PY'
+          import sys
+          import unittest
+
+          if sys.platform != "darwin":
+              raise SystemExit("macOS adapter integration job ran on an unsupported platform")
+          loader = unittest.defaultTestLoader
+          suite = unittest.TestSuite()
+          for pattern in (
+              "test_git_diff_adapter.py",
+              "test_git_snapshot_closure.py",
+              "test_git_publication_binding.py",
+              "test_git_ref_storage.py",
+              "test_git_path_result_contract.py",
+              "test_bundle_verifier.py",
+              "test_bundle_verifier_semantic_binding.py",
+          ):
+              suite.addTests(loader.discover("tests", pattern=pattern))
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          if result.testsRun == 0:
+              raise SystemExit("macOS adapter integration suite was empty")
+          if result.skipped:
+              raise SystemExit(f"macOS adapter integration tests unexpectedly skipped: {result.skipped}")
+          if not result.wasSuccessful():
+              raise SystemExit(1)
+          PY
+      - run: clu-governance git-adapt --help
+
+  package_wheel:
+    name: Build and test wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip wheel --no-deps . --wheel-dir wheelhouse
+      - name: Verify wheel contents
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          wheels = list(Path("wheelhouse").glob("*.whl"))
+          assert len(wheels) == 1
+          with ZipFile(wheels[0]) as bundle:
+              names = bundle.namelist()
+          assert any(name.endswith("clu_governance/protected_source_manifest.py") for name in names)
+          assert not any(name.startswith("tests/") or ".egg-info" in name or "__pycache__" in name for name in names)
+          PY
+      - run: python -m venv wheel-venv
+      - run: wheel-venv/bin/python -m pip install --no-deps wheelhouse/*.whl
+      - run: wheel-venv/bin/clu-governance --version
+      - run: wheel-venv/bin/clu-governance protected-source-manifest --json
+      - run: wheel-venv/bin/clu-governance demo-run-all --json
+      - run: test -z "$(find wheelhouse -type f ! -name '*.whl' -print)"
+
+  editable_install:
+    name: Standard editable install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m venv editable-venv
+      - run: editable-venv/bin/python -m pip install -e .
+      - run: editable-venv/bin/clu-governance --version
+      - run: editable-venv/bin/clu-governance protected-source-manifest --json
+      - run: editable-venv/bin/clu-governance demo-run-all --json
+
+  hygiene_and_strict_json:
+    name: Public hygiene and strict JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest tests/test_strict_json_boundaries.py tests/test_public_release_candidate.py -q
+      - run: test -z "$(git ls-files | grep -E '(^|/)(__pycache__|\.pytest_cache|build|dist|.*\.egg-info)(/|$)|\.(pyc|pyo|whl|tar|gz)$|(^|/)\.DS_Store$' || true)"

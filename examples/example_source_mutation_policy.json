@@ -1,0 +1,77 @@
+{
+  "allowed_actor_classes": [
+    "operator"
+  ],
+  "allowed_declared_actor_ids": [
+    "demo_operator"
+  ],
+  "allowed_operations": [
+    "modify"
+  ],
+  "allowed_path_globs": [
+    "*.md"
+  ],
+  "allowed_path_prefixes": [],
+  "allowed_paths": [
+    "README.md"
+  ],
+  "allowed_scopes": [
+    "docs_only"
+  ],
+  "default_decision": "deny",
+  "denied_path_globs": [
+    "*.py",
+    "*.pem",
+    "*.key"
+  ],
+  "denied_path_prefixes": [
+    ".git",
+    "clu",
+    "SOURCE",
+    "secrets"
+  ],
+  "denied_paths": [
+    ".env",
+    ".env.local"
+  ],
+  "maximum_file_count": 1,
+  "policy_id": "clu-governance-demo-source-mutation-policy-v1",
+  "rollback_readiness_required": true,
+  "rules": [
+    {
+      "effect": "deny",
+      "operations": [
+        "modify",
+        "delete",
+        "rename",
+        "chmod",
+        "symlink"
+      ],
+      "path_globs": [
+        "*.py",
+        "*.pem",
+        "*.key"
+      ],
+      "path_prefixes": [
+        ".git",
+        "clu",
+        "SOURCE",
+        "secrets"
+      ],
+      "rule_id": "deny-sensitive-or-source-code"
+    },
+    {
+      "effect": "allow",
+      "operations": [
+        "modify"
+      ],
+      "paths": [
+        "README.md"
+      ],
+      "rule_id": "allow-doc-readme-modify"
+    }
+  ],
+  "schema_name": "clu_governance_source_mutation_policy.v1",
+  "schema_version": "1"
+}
+

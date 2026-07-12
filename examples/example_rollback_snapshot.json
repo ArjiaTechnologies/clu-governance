@@ -1,0 +1,15 @@
+{
+  "example_note": "Illustrative rollback artifact. The executable demo writes a fresh artifact with real content hashes and an absolute wrapper path at runtime.",
+  "files": {
+    "README.md": {
+      "before_sha256": "<current README.md sha256>",
+      "content_encoding": "utf-8",
+      "original_content": "# Demo Repo\n\nInitial governance demo state.\n",
+      "path": "README.md"
+    }
+  },
+  "schema_name": "clu_governance_source_mutation_rollback_readiness.v1",
+  "schema_version": "1",
+  "snapshot_id": "demo-readme-snapshot"
+}
+

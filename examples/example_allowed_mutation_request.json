@@ -1,0 +1,36 @@
+{
+  "actor_identity_source": "caller_declared",
+  "declared_actor_id": "demo_operator",
+  "example_note": "Illustrative schema example. The runnable demo-init path writes real source-tree and rollback artifact hashes for its temporary workspace.",
+  "operations": [
+    {
+      "before_sha256": "<current README.md sha256>",
+      "operation": "modify",
+      "path": "README.md"
+    }
+  ],
+  "proposal_body": {
+    "description": "Modify README.md documentation in the temporary demo repository.",
+    "new_content": "# Demo Repo\n\nApproved documentation-only governance demo change.\n",
+    "proposal_id": "demo-proposal-doc-readme"
+  },
+  "proposal_hash": "<canonical sha256 of proposal_body>",
+  "proposal_id": "demo-proposal-doc-readme",
+  "request_id": "demo-allowed-doc-mutation",
+  "requested_scope": "docs_only",
+  "rollback_readiness": {
+    "artifact_path": "<absolute path to generated rollback snapshot>",
+    "artifact_sha256": "<rollback snapshot sha256>",
+    "files": {
+      "README.md": {
+        "before_sha256": "<current README.md sha256>"
+      }
+    },
+    "schema_name": "clu_governance_source_mutation_rollback_readiness.v1",
+    "schema_version": "1"
+  },
+  "schema_name": "clu_governance_source_mutation_request.v1",
+  "schema_version": "1",
+  "source_tree_hash": "<current temporary demo repo tree hash>"
+}
+

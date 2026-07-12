@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clu-governance"
+version = "0.1.0a1"
+description = "Local-first source-mutation governance for AI coding agents"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = []
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.scripts]
+clu-governance = "clu_governance.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["clu_governance*"]
