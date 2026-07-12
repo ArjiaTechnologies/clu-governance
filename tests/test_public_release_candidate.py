@@ -36,6 +36,10 @@ class PublicReleaseCandidateTests(unittest.TestCase):
 
     def test_readme_states_approval_and_adapter_boundaries(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("CLU stands for Cognitive Layer Utility", text)
+        self.assertIn("CLU verifies policy, hashes, and rollback-readiness", text)
+        self.assertIn("CLU produces allow/deny evidence", text)
+        self.assertIn("separate approval or application step may follow", text)
         self.assertIn("eligible for a separate approval", text)
         self.assertIn("does **not** authorize", text)
         self.assertIn("Experimental Git adapter", text)
@@ -72,13 +76,26 @@ class PublicReleaseCandidateTests(unittest.TestCase):
     def test_ci_partitions_macos_adapter_execution_and_has_no_release_credentials(self) -> None:
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         linux_job = workflow.split("  core_linux:", 1)[1].split("  core_macos:", 1)[0]
+        macos_core_job = workflow.split("  core_macos:", 1)[1].split("  macos_git_adapter:", 1)[0]
         macos_adapter_job = workflow.split("  macos_git_adapter:", 1)[1].split(
             "  package_wheel:", 1
         )[0]
         self.assertIn("unittest discover -s tests -q", linux_job)
         self.assertIn("expected skips", linux_job)
+        self.assertLess(
+            linux_job.index("unittest discover -s tests -q"),
+            linux_job.index("python -m pip install ."),
+        )
+        self.assertLess(
+            macos_core_job.index("unittest discover -s tests -q"),
+            macos_core_job.index("python -m pip install ."),
+        )
         self.assertNotIn("Run macOS adapter integration suite without skips", linux_job)
         self.assertIn("Run macOS adapter integration suite without skips", macos_adapter_job)
+        self.assertLess(
+            macos_adapter_job.index("Run macOS adapter integration suite without skips"),
+            macos_adapter_job.index("python -m pip install ."),
+        )
         self.assertIn("result.skipped", macos_adapter_job)
         for filename in (
             "test_git_diff_adapter.py",

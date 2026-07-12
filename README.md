@@ -1,8 +1,12 @@
 # CLU Governance
 
+**CLU stands for Cognitive Layer Utility.**
+
 CLU Governance is a local-first policy and evidence layer for AI-proposed source changes. It verifies mutation requests, rollback-readiness, and local policy eligibility before a separate approval or application step.
 
 It is for developers experimenting with a deliberate control point between a coding agent and a repository mutation. The core CLI is the primary pre-alpha product: it runs locally, has zero runtime dependencies, and provides deterministic policy, hash, approval-separation, rollback-readiness, and evidence workflows.
+
+AI proposes a source change → CLU verifies policy, hashes, and rollback-readiness → CLU produces allow/deny evidence → A separate approval or application step may follow.
 
 > **Pre-alpha:** `0.1.0a1` is for experimentation and integration work. It is not an enterprise security guarantee, authenticated identity system, non-bypassable enforcement layer, immutable audit store, or guarantee that a rollback will succeed outside the documented demo.
 

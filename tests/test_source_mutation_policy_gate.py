@@ -90,7 +90,13 @@ def _verify_internal_checksums(root: Path) -> None:
 def _copy_package_for_tree_test(temp_root: Path) -> Path:
     copied_parent = temp_root / "tree-preservation-child"
     copied_package = copied_parent / "STANDALONE_GOVERNANCE_PACKAGE"
-    ignore = shutil.ignore_patterns("__pycache__", ".pytest_cache", "*.pyc", "*.pyo")
+    # Git metadata and local build products are not part of the standalone
+    # public package tree. Excluding them keeps this preservation probe tied
+    # to the checksummed candidate files when it runs from a GitHub checkout.
+    ignore = shutil.ignore_patterns(
+        ".git", "__pycache__", ".pytest_cache", "build", "dist",
+        "*.pyc", "*.pyo", "*.egg-info",
+    )
     shutil.copytree(PACKAGE_ROOT, copied_package, ignore=ignore)
     return copied_package
 
