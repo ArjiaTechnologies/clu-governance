@@ -13,7 +13,7 @@ It is for developers experimenting with a deliberate control point between a cod
 AI proposes a source change → CLU verifies policy, hashes, and rollback-readiness → CLU produces allow/deny evidence → A separate approval or application step may follow.
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["AI proposes a source change"] --> B["CLU checks local policy, hashes, and rollback readiness"]
     B --> C{"Allow or deny evidence"}
     C --> D["Separate approval or application step"]
