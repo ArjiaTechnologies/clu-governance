@@ -179,6 +179,7 @@ class PublicReleaseCandidateTests(unittest.TestCase):
         linux_job = workflow.split("  core_linux:", 1)[1].split("  core_macos:", 1)[0]
         self.assertIn("Run portable Claude Code PreToolUse contract on Linux", linux_job)
         self.assertIn("tests/test_claude_code_pretooluse.py", linux_job)
+        self.assertIn('test "$(uname -m)" = "x86_64"', linux_job)
         self.assertIn("claude_code_pretooluse.py", workflow)
         self.assertIn("claude-pretooluse --help", workflow)
 

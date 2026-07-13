@@ -18,6 +18,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Confirm supported Linux adapter runner architecture
+        run: test "$(uname -m)" = "x86_64"
       - name: Explain expected platform skips
         run: echo "Linux runs the complete suite and reports expected skips only for tests requiring successful macOS git-adapt execution."
       - run: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest discover -s tests -q
