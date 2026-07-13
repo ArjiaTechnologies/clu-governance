@@ -19,6 +19,8 @@ from .source_mutation_policy_gate import DENIAL_EXIT_CODE, evaluate_source_mutat
 INPUT_SCHEMA_NAME = "clu_governance_agent_preflight_input.v1"
 ERROR_SCHEMA_NAME = "clu_governance_agent_preflight_error.v1"
 SCHEMA_VERSION = "1"
+INPUT_REJECTION_EXIT_CODE = 1
+RUNTIME_FAILURE_EXIT_CODE = 1
 REQUIRED_INPUT_FIELDS = {
     "schema_name",
     "schema_version",
@@ -73,14 +75,21 @@ def parse_input(document: str) -> tuple[Path, Path, Path, str, int]:
         raise AgentPreflightInputError("agent_preflight_input_missing")
     try:
         payload = strict_json.loads(document)
+    except strict_json.DuplicateJSONKeyError:
+        raise AgentPreflightInputError("agent_preflight_input_duplicate_json_key") from None
     except Exception:
         raise AgentPreflightInputError("agent_preflight_input_malformed_json") from None
     if not isinstance(payload, dict):
         raise AgentPreflightInputError("agent_preflight_input_not_object")
-    if set(payload) != REQUIRED_INPUT_FIELDS:
-        raise AgentPreflightInputError("agent_preflight_input_fields_invalid")
-    if payload.get("schema_name") != INPUT_SCHEMA_NAME or payload.get("schema_version") != SCHEMA_VERSION:
-        raise AgentPreflightInputError("agent_preflight_input_wrong_schema")
+    supplied_fields = set(payload)
+    if REQUIRED_INPUT_FIELDS - supplied_fields:
+        raise AgentPreflightInputError("agent_preflight_input_required_field_missing")
+    if supplied_fields - REQUIRED_INPUT_FIELDS:
+        raise AgentPreflightInputError("agent_preflight_input_unknown_field")
+    if payload.get("schema_name") != INPUT_SCHEMA_NAME:
+        raise AgentPreflightInputError("agent_preflight_input_schema_name_invalid")
+    if payload.get("schema_version") != SCHEMA_VERSION:
+        raise AgentPreflightInputError("agent_preflight_input_schema_version_invalid")
 
     event_timestamp = payload.get("event_timestamp")
     if not isinstance(event_timestamp, str) or not event_timestamp.strip():
@@ -103,7 +112,7 @@ def run(document: str) -> tuple[int, dict[str, Any]]:
     try:
         policy_path, request_path, source_root, event_timestamp, sequence_index = parse_input(document)
     except AgentPreflightInputError as exc:
-        return DENIAL_EXIT_CODE, error_payload(result="input_rejected", exact_blocker=str(exc))
+        return INPUT_REJECTION_EXIT_CODE, error_payload(result="input_rejected", exact_blocker=str(exc))
 
     try:
         decision = evaluate_source_mutation_request(
@@ -114,7 +123,7 @@ def run(document: str) -> tuple[int, dict[str, Any]]:
             sequence_index=sequence_index,
         )
     except Exception:
-        return 1, error_payload(result="failed", exact_blocker="agent_preflight_evaluation_failed")
+        return RUNTIME_FAILURE_EXIT_CODE, error_payload(result="failed", exact_blocker="agent_preflight_evaluation_failed")
     return (0 if decision.get("decision") == "allow" else DENIAL_EXIT_CODE), decision
 
 
@@ -124,7 +133,7 @@ def main(argv: list[str] | None = None, *, stdin: TextIO | None = None, stdout: 
     if argv not in (None, []):
         payload = error_payload(result="input_rejected", exact_blocker="agent_preflight_arguments_not_supported")
         (stdout or sys.stdout).write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
-        return DENIAL_EXIT_CODE
+        return INPUT_REJECTION_EXIT_CODE
     exit_code, payload = run((stdin or sys.stdin).read())
     (stdout or sys.stdout).write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     return exit_code

@@ -1,6 +1,6 @@
 # Security Policy
 
-CLU Governance `0.1.0a1` is a pre-alpha developer tool. It has not received independent security certification.
+CLU Governance `0.1.0a2` is a pre-alpha developer tool. It has not received independent security certification.
 
 ## Supported surface
 

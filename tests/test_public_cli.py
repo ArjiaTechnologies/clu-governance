@@ -105,7 +105,7 @@ class PublicCliContractTest(unittest.TestCase):
     def test_version_is_exact_and_uses_package_surface(self) -> None:
         result = run_module("--version")
         self.assertEqual(result.returncode, 0)
-        self.assertEqual(result.stdout, "clu-governance 0.1.0a1\n")
+        self.assertEqual(result.stdout, "clu-governance 0.1.0a2\n")
         self.assertEqual(result.stderr, "")
 
     def test_top_level_and_all_subcommand_help(self) -> None:
@@ -228,7 +228,7 @@ class PublicCliContractTest(unittest.TestCase):
         self.assertIs(denied_payload["mutation_applied"], False)
 
         malformed = run_module("agent-preflight", stdin="{")
-        self.assertEqual(malformed.returncode, 2)
+        self.assertEqual(malformed.returncode, 1)
         malformed_payload = parse_single_json(malformed.stdout)
         self.assertEqual(malformed_payload["schema_name"], "clu_governance_agent_preflight_error.v1")
         self.assertEqual(malformed_payload["result"], "input_rejected")

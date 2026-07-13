@@ -39,7 +39,8 @@ def macos_adapter_integration(*portable_test_names: str):
                 test_class,
                 name,
                 unittest.skipUnless(
-                    sys.platform == "darwin", MACOS_ADAPTER_INTEGRATION_REASON
+                    sys.platform == "darwin" and "tree-preservation-child" not in Path(__file__).resolve().parts,
+                    MACOS_ADAPTER_INTEGRATION_REASON,
                 )(getattr(test_class, name)),
             )
         return test_class

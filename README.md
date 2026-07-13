@@ -25,7 +25,7 @@ flowchart TD
 
 ![Terminal demo: a documentation-only README.md request is allowed only as eligible for separate human approval; rollback readiness is verified; a source delete request is denied; no source mutation is authorized or applied.](docs/assets/clu-governance-policy-evidence-demo.gif)
 
-This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. It shows the resulting local policy evidence and rollback-readiness signal only. It does not invoke approval or execution, and it does not authorize or apply a source mutation.
+This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. It shows the resulting local policy evidence and rollback-readiness signal only. It does not invoke approval or execution, and it does not authorize or apply a source mutation. The recording was captured with `0.1.0a1`; it documents the stable evidence boundary while this branch prepares `0.1.0a2`.
 
 ## Why CLU?
 
@@ -97,7 +97,7 @@ Open an [issue](https://github.com/ArjiaTechnologies/clu-governance/issues) for 
 
 ## Pre-alpha boundaries and current limits
 
-> **Pre-alpha:** `0.1.0a1` is for experimentation and integration work. It is not an enterprise security guarantee, authenticated identity system, non-bypassable enforcement layer, immutable audit store, or guarantee that a rollback will succeed outside the documented demo.
+> **Pre-alpha:** `0.1.0a2` is for experimentation and integration work. It is not an enterprise security guarantee, authenticated identity system, non-bypassable enforcement layer, immutable audit store, or guarantee that a rollback will succeed outside the documented demo.
 
 > **Experimental Git adapter:** `git-adapt` is experimental and intended for trusted local repositories in single-user workflows. It is not a sandbox and does not defend against a malicious Git executable, hostile local process, operating-system administrator, concurrent same-user filesystem modification, or tampering after point-in-time verification.
 

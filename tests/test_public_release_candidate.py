@@ -8,7 +8,7 @@ from clu_governance import __version__
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PUBLIC_VERSION = "0.1.0a1"
+PUBLIC_VERSION = "0.1.0a2"
 
 
 class PublicReleaseCandidateTests(unittest.TestCase):
@@ -31,7 +31,14 @@ class PublicReleaseCandidateTests(unittest.TestCase):
         project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
         self.assertEqual(project["version"], PUBLIC_VERSION)
         self.assertEqual(__version__, PUBLIC_VERSION)
-        for relative in ("README.md", "CHANGELOG.md", "docs/quickstart.md", "docs/cli-contract.md"):
+        for relative in (
+            "README.md",
+            "CHANGELOG.md",
+            "SECURITY.md",
+            "docs/claims-and-limitations.md",
+            "docs/quickstart.md",
+            "docs/cli-contract.md",
+        ):
             self.assertIn(PUBLIC_VERSION, (ROOT / relative).read_text(encoding="utf-8"), relative)
 
     def test_readme_states_approval_and_adapter_boundaries(self) -> None:
@@ -121,6 +128,24 @@ class PublicReleaseCandidateTests(unittest.TestCase):
         self.assertIn("bundle_path_missing", text)
         self.assertIn("bundle_parent_symlink_or_identity_denied", text)
         self.assertIn("bundle_parent_identity_changed", text)
+
+    def test_agent_preflight_docs_state_contract_and_default_state_boundary(self) -> None:
+        contract = (ROOT / "docs/cli-contract.md").read_text(encoding="utf-8")
+        quickstart = (ROOT / "docs/quickstart.md").read_text(encoding="utf-8")
+        architecture = (ROOT / "docs/architecture.md").read_text(encoding="utf-8")
+        for marker in (
+            "agent-preflight",
+            "clu_governance_agent_preflight_input.v1",
+            "`0`",
+            "`2`",
+            "`1`",
+            "creates no files, directories, approval artifacts, caches, databases, daemon sockets, services, hooks, keychain entries, or global configuration",
+            "not agent enforcement",
+            "Claude Code, Copilot CLI, OpenHands, Codex, Cursor, Aider",
+        ):
+            self.assertIn(marker, contract)
+        self.assertIn("default operation leaves no CLU state", quickstart)
+        self.assertIn("Agent-neutral preflight seam", architecture)
 
     def test_public_docs_do_not_embed_local_workspace_markers(self) -> None:
         forbidden = (
