@@ -47,14 +47,17 @@ and other tool calls are not claimed as governed. If the command is invoked
 directly for another tool, it returns an explicit `ask` response and leaves
 the normal Claude Code permission flow in charge.
 
-The versioned fixture target is Claude Code `2.1.89`: the current official
-changelog identifies that release as adding the `defer` PreToolUse decision.
-This adapter uses only the ordinary `ask` and `deny` decisions; it does not use
-`defer` or `if` filtering. No `claude` executable was installed in this
-release-engineering environment, so `2.1.89` is a fixture-level schema target,
-not a claim of a live authenticated Claude Code session test. CI runs the
-adapter's portable stdin/stdout contract on Ubuntu Linux/x86_64 with Python
-3.12.
+The hook fields and response shape were checked against the official
+[Claude Code Hooks reference](https://code.claude.com/docs/en/hooks) on
+2026-07-13. The latest version listed by the official changelog at that time
+was Claude Code `2.1.205`. No live Claude Code executable or authenticated
+session was available in this release-engineering environment, so a minimum
+compatible Claude Code version has not yet been independently established. The
+first external disposable-project test will record the tester's installed
+version. Claude Code `2.1.89` introduced the `defer` PreToolUse decision, but
+this adapter does not use `defer` and does not treat that version as a
+compatibility anchor. CI runs the adapter's portable stdin/stdout contract on
+Ubuntu Linux/x86_64 with Python 3.12.
 
 ## Decision mapping
 
@@ -75,24 +78,25 @@ authorize or apply a mutation.
 
 ## Setup on Ubuntu Linux/x86_64
 
-Use Python 3.12 and a local checkout. The adapter itself has no runtime
-network call, no daemon, no global cache, no keychain entry, and no background
-service.
+Use Python 3.12 and an existing local CLU Governance checkout. The adapter
+itself has no runtime network call, no daemon, no global cache, no keychain
+entry, and no background service. The following project-local installation is
+for Linux and macOS; Windows has not been tested for this experimental
+integration.
 
 ```bash
-git clone https://github.com/ArjiaTechnologies/clu-governance.git
-cd clu-governance
-python3.12 -m venv .venv
-. .venv/bin/activate
-python -m pip install .
-
-# In the Claude Code project you want to test:
+# In the disposable Claude Code project you want to test:
 mkdir -p .claude
-cp /path/to/clu-governance/examples/claude-code-pretooluse/.claude/settings.local.json .claude/settings.local.json
-cp /path/to/clu-governance/examples/claude-code-pretooluse/.claude/clu-governance-policy.json .claude/clu-governance-policy.json
+python3.12 -m venv .claude/clu-governance-venv
+.claude/clu-governance-venv/bin/python -m pip install --no-deps --no-cache-dir /absolute/path/to/clu-governance
+cp /absolute/path/to/clu-governance/examples/claude-code-pretooluse/.claude/settings.local.json .claude/settings.local.json
+cp /absolute/path/to/clu-governance/examples/claude-code-pretooluse/.claude/clu-governance-policy.json .claude/clu-governance-policy.json
 ```
 
-The committed example is deliberately project-local:
+The committed example is deliberately project-local and uses the documented
+command-hook exec form. With `args` present, Claude Code directly executes the
+exact project-local executable and receives a separate argument vector; no
+shell, activation step, pipe, redirect, or command chaining is involved:
 
 ```json
 {
@@ -103,7 +107,13 @@ The committed example is deliberately project-local:
         "hooks": [
           {
             "type": "command",
-            "command": "clu-governance claude-pretooluse --policy \"$CLAUDE_PROJECT_DIR/.claude/clu-governance-policy.json\""
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/clu-governance-venv/bin/clu-governance",
+            "args": [
+              "claude-pretooluse",
+              "--policy",
+              "${CLAUDE_PROJECT_DIR}/.claude/clu-governance-policy.json"
+            ],
+            "timeout": 30
           }
         ]
       }
@@ -128,6 +138,8 @@ leaves a CLU evidence file.
 
 ## State, disable, and uninstall
 
+### Runtime-created default state
+
 Default operation creates zero residual CLU state. For one hook invocation it
 creates only a request JSON file and a rollback snapshot in a private
 temporary directory, then removes that directory before writing its one JSON
@@ -135,23 +147,30 @@ response. It creates no evidence artifact, source file, approval artifact,
 repository hook, cache, database, daemon, service, keychain entry, global
 configuration, or network connection.
 
-Files a user may create explicitly:
+### User-created setup state
 
-- `.claude/settings.local.json` — the project-local Claude Code hook setting;
-- `.claude/clu-governance-policy.json` — the project-local policy copied from
-  the example; and
-- an optional caller-selected redirected stdout file, if the caller chooses to
-  persist hook output outside normal Claude Code operation.
+The documented setup creates only these project-local paths:
+
+- `.claude/settings.local.json` — the Claude Code hook setting;
+- `.claude/clu-governance-policy.json` — the CLU policy copied from the
+  example; and
+- `.claude/clu-governance-venv/` — the isolated CLU executable used by the
+  hook.
+
+An optional caller-selected redirected output file is also user-created if a
+caller explicitly redirects stdout outside normal Claude Code operation.
 
 To disable the integration, remove the `PreToolUse` entry from
 `.claude/settings.local.json` (or set the documented Claude Code
 `"disableAllHooks": true` in that project settings file). Claude Code also
 provides `/hooks` to inspect configured hooks.
 
-To uninstall it completely, delete the two project-local files above, remove
-the CLU virtual environment or package if no other CLU workflow needs it, and
-remove any caller-created redirected output file. There is no daemon, global
-state, or CLU-created residual directory to clean up.
+To uninstall it completely, remove only the CLU `PreToolUse` hook entry (do
+not delete unrelated `.claude` configuration), remove
+`.claude/clu-governance-policy.json`, remove
+`.claude/clu-governance-venv/`, and remove any optional caller-created output
+file. There is no daemon, global state, or CLU-created residual directory to
+clean up.
 
 ## Limits and future adapters
 

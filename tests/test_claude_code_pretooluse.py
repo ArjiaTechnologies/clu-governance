@@ -271,6 +271,109 @@ class ClaudeCodePreToolUseTest(unittest.TestCase):
         self.assertTrue(settings.is_file())
         self.assertEqual(json.loads(settings.read_text(encoding="utf-8"))["hooks"]["PreToolUse"][0]["matcher"], "Edit")
 
+    def test_committed_project_local_exec_hook_runs_and_uninstalls_cleanly(self) -> None:
+        example_root = ROOT / "examples/claude-code-pretooluse/.claude"
+        settings_document = json.loads((example_root / "settings.local.json").read_text(encoding="utf-8"))
+        expected_settings = {
+            "hooks": {
+                "PreToolUse": [
+                    {
+                        "matcher": "Edit",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": "${CLAUDE_PROJECT_DIR}/.claude/clu-governance-venv/bin/clu-governance",
+                                "args": [
+                                    "claude-pretooluse",
+                                    "--policy",
+                                    "${CLAUDE_PROJECT_DIR}/.claude/clu-governance-policy.json",
+                                ],
+                                "timeout": 30,
+                            }
+                        ],
+                    }
+                ]
+            }
+        }
+        self.assertEqual(settings_document, expected_settings)
+        handler = settings_document["hooks"]["PreToolUse"][0]["hooks"][0]
+        assert isinstance(handler, dict)
+        command = handler["command"]
+        arguments = handler["args"]
+        self.assertIsInstance(command, str)
+        self.assertIsInstance(arguments, list)
+        self.assertNotIn(" ", command)
+        for value in [command, *arguments]:
+            self.assertIsInstance(value, str)
+            self.assertNotRegex(str(value), r"[|;&><`]")
+
+        claude_directory = self.project / ".claude"
+        claude_directory.mkdir()
+        shutil.copyfile(example_root / "settings.local.json", claude_directory / "settings.local.json")
+        shutil.copyfile(example_root / "clu-governance-policy.json", claude_directory / "clu-governance-policy.json")
+        environment = dict(os.environ)
+        environment["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
+        environment["PIP_NO_INPUT"] = "1"
+        environment["PIP_NO_CACHE_DIR"] = "1"
+        virtual_environment = claude_directory / "clu-governance-venv"
+        candidate_copy = self.temp_root / "candidate"
+        shutil.copytree(
+            ROOT,
+            candidate_copy,
+            ignore=shutil.ignore_patterns(".git", "__pycache__", "*.pyc", "*.egg-info", "build", "dist"),
+        )
+        subprocess.run([sys.executable, "-m", "venv", str(virtual_environment)], check=True, capture_output=True, text=True)
+        virtual_python = virtual_environment / "bin/python"
+        installation = subprocess.run(
+            [str(virtual_python), "-m", "pip", "install", "--no-deps", "--no-cache-dir", str(candidate_copy)],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=environment,
+        )
+        self.assertEqual(installation.returncode, 0, installation.stderr or installation.stdout)
+
+        expanded_command = str(command).replace("${CLAUDE_PROJECT_DIR}", str(self.project))
+        expanded_arguments = [str(value).replace("${CLAUDE_PROJECT_DIR}", str(self.project)) for value in arguments]
+        allowed = subprocess.run(
+            [expanded_command, *expanded_arguments],
+            cwd=self.project,
+            input=json.dumps(self.hook_input()),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertEqual(allowed.returncode, 0, allowed.stderr or allowed.stdout)
+        self.assertEqual(allowed.stderr, "")
+        self.assert_hook_decision(parse_single_json(allowed.stdout), "ask")
+
+        (self.project / "notes.txt").write_text("Not governed by the sample policy.\n", encoding="utf-8")
+        denied = self.hook_input(
+            file_path=self.project / "notes.txt",
+            old_string="Not governed by the sample policy.",
+            new_string="Still not governed by the sample policy.",
+        )
+        denied_result = subprocess.run(
+            [expanded_command, *expanded_arguments],
+            cwd=self.project,
+            input=json.dumps(denied),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertEqual(denied_result.returncode, 0, denied_result.stderr or denied_result.stdout)
+        self.assertEqual(denied_result.stderr, "")
+        self.assertIn("blocker: path_not_explicitly_allowed", self.assert_hook_decision(parse_single_json(denied_result.stdout), "deny"))
+
+        shutil.rmtree(virtual_environment)
+        (claude_directory / "settings.local.json").unlink()
+        (claude_directory / "clu-governance-policy.json").unlink()
+        claude_directory.rmdir()
+        self.assertFalse(claude_directory.exists())
+        self.assertFalse((self.project / ".claude").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

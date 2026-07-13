@@ -6,7 +6,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "clu-governance claude-pretooluse --policy \"$CLAUDE_PROJECT_DIR/.claude/clu-governance-policy.json\""
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/clu-governance-venv/bin/clu-governance",
+            "args": [
+              "claude-pretooluse",
+              "--policy",
+              "${CLAUDE_PROJECT_DIR}/.claude/clu-governance-policy.json"
+            ],
+            "timeout": 30
           }
         ]
       }
