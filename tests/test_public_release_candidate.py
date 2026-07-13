@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import tomllib
 import unittest
 from pathlib import Path
@@ -8,7 +9,7 @@ from clu_governance import __version__
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PUBLIC_VERSION = "0.1.0a2"
+PUBLIC_VERSION = "0.1.0a3"
 
 
 class PublicReleaseCandidateTests(unittest.TestCase):
@@ -24,6 +25,8 @@ class PublicReleaseCandidateTests(unittest.TestCase):
             "docs/development-methodology.md",
             "docs/engineering-decisions.md",
             "docs/architecture.md",
+            "docs/claude-code-pretooluse.md",
+            "docs/future-signed-evidence.md",
         }
         self.assertEqual({path for path in required if not (ROOT / path).is_file()}, set())
 
@@ -51,6 +54,8 @@ class PublicReleaseCandidateTests(unittest.TestCase):
         self.assertIn("does **not** authorize", text)
         self.assertIn("Experimental Git adapter", text)
         self.assertIn("not a sandbox", text)
+        self.assertIn("Experimental Claude Code adapter", text)
+        self.assertIn("normal `ask` response", text)
 
     def test_security_and_adapter_docs_have_visible_warning(self) -> None:
         for relative in ("SECURITY.md", "docs/git-diff-adapter.md"):
@@ -146,6 +151,65 @@ class PublicReleaseCandidateTests(unittest.TestCase):
             self.assertIn(marker, contract)
         self.assertIn("default operation leaves no CLU state", quickstart)
         self.assertIn("Agent-neutral preflight seam", architecture)
+
+    def test_claude_code_adapter_docs_preserve_thin_portable_permission_boundary(self) -> None:
+        guide = (ROOT / "docs/claude-code-pretooluse.md").read_text(encoding="utf-8")
+        future_evidence = (ROOT / "docs/future-signed-evidence.md").read_text(encoding="utf-8")
+        for marker in (
+            "Ubuntu Linux/x86_64",
+            "Python 3.12",
+            "agent-preflight",
+            "permissionDecision: \"ask\"",
+            "never emits `permissionDecision: \"allow\"`",
+            "no daemon",
+            "no global cache",
+            "To uninstall it completely",
+        ):
+            self.assertIn(marker, guide)
+        for marker in (
+            "not implemented",
+            "cryptographic verdict signatures",
+            "externally witnessed timestamps",
+            "not part of the Claude Code adapter",
+        ):
+            self.assertIn(marker, future_evidence)
+
+    def test_linux_ci_runs_the_portable_claude_adapter_contract(self) -> None:
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        linux_job = workflow.split("  core_linux:", 1)[1].split("  core_macos:", 1)[0]
+        self.assertIn("Run portable Claude Code PreToolUse contract on Linux", linux_job)
+        self.assertIn("tests/test_claude_code_pretooluse.py", linux_job)
+        self.assertIn('test "$(uname -m)" = "x86_64"', linux_job)
+        self.assertIn("claude_code_pretooluse.py", workflow)
+        self.assertIn("claude-pretooluse --help", workflow)
+
+    def test_public_candidate_checksums_have_complete_exact_coverage(self) -> None:
+        checksum_path = ROOT / "CHECKSUMS.sha256"
+        records: dict[str, str] = {}
+        malformed: list[str] = []
+        for line in checksum_path.read_text(encoding="utf-8").splitlines():
+            try:
+                digest, relative = line.split("  ", 1)
+            except ValueError:
+                malformed.append(line)
+                continue
+            if len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest):
+                malformed.append(line)
+                continue
+            if not relative.startswith("./") or relative in records:
+                malformed.append(line)
+                continue
+            records[relative] = digest
+        expected = {
+            "./" + path.relative_to(ROOT).as_posix()
+            for path in ROOT.rglob("*")
+            if path.is_file() and path.name != "CHECKSUMS.sha256" and ".git" not in path.parts
+        }
+        self.assertEqual(malformed, [])
+        self.assertEqual(set(records), expected)
+        for relative, expected_digest in records.items():
+            actual_digest = hashlib.sha256((ROOT / relative.removeprefix("./")).read_bytes()).hexdigest()
+            self.assertEqual(actual_digest, expected_digest, relative)
 
     def test_public_docs_do_not_embed_local_workspace_markers(self) -> None:
         forbidden = (

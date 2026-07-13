@@ -1,14 +1,15 @@
 # CLI Contract
 
-Distribution version: `0.1.0a2`
+Distribution version: `0.1.0a3`
 Executable: `clu-governance`
 
-`--version` prints `clu-governance 0.1.0a2`. Valid `--json` commands write one complete JSON object to stdout. Usage errors use stderr and exit `2`; governed denials and structural blocks also use exit `2`; bounded unexpected failures use exit `1`.
+`--version` prints `clu-governance 0.1.0a3`. Valid `--json` commands write one complete JSON object to stdout. Usage errors use stderr and exit `2`; governed denials and structural blocks also use exit `2`; bounded unexpected failures use exit `1`.
 
 ## Core commands
 
 - `evaluate` evaluates a request against a local policy and writes a decision artifact. It does not mutate source.
 - `agent-preflight` reads one strict JSON envelope from stdin and writes one existing policy-decision JSON object to stdout. It does not write an artifact, record approval, apply a mutation, start an agent, or start a subprocess.
+- `claude-pretooluse` is an experimental Claude Code `PreToolUse` command-hook translation for one existing-file `Edit`. It calls `agent-preflight`; it does not contain policy rules, apply a mutation, or grant Claude Code automatic permission.
 - `verify` verifies a decision artifact hash.
 - `demo-init`, `demo-approve`, `demo-execute`, and `demo-run-all` implement the deterministic local demonstration workflow.
 - `protected-source-manifest` reports exact active package/distribution ownership without modifying files.
@@ -128,3 +129,22 @@ To remove an integration, remove the caller's shell or CI invocation, any caller
 Future thin adapters for Claude Code, Copilot CLI, OpenHands, Codex, Cursor, Aider, or another agent surface may construct this same envelope before their own tool call and consume the JSON evidence. They must remain separate packages or layers: this command is vendor-neutral and does not launch, configure, or claim to enforce any named agent.
 
 `agent-preflight` never records approval, creates an approval artifact, or applies a mutation. A caller must keep approval and any application step separate.
+
+## Experimental Claude Code PreToolUse
+
+`clu-governance claude-pretooluse --policy /absolute/project/.claude/clu-governance-policy.json`
+reads one strict Claude Code hook JSON object from stdin and emits exactly one
+documented Claude Code structured `PreToolUse` response on stdout. It supports
+only existing-file `Edit` with a unique `old_string` replacement and
+`replace_all: false`. The project-local example uses an `Edit` matcher, so
+unsupported tools are not matched or claimed as governed.
+
+A CLU policy allow maps to `permissionDecision: "ask"`, not `"allow"`, to
+preserve Claude Code's normal permission flow. Policy denial and malformed or
+unverifiable input map to `permissionDecision: "deny"` with a concise local
+blocker and correction step. The adapter itself exits `0` for these structured
+responses because that is the documented Claude Code hook protocol. It creates
+only temporary request and rollback files during evaluation and removes them
+before it returns; it creates no default evidence file, approval, daemon,
+cache, keychain entry, or global state. See [the adapter guide](claude-code-pretooluse.md)
+for the exact schema, setup, disable, and uninstall path.

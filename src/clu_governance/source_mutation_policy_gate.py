@@ -993,6 +993,21 @@ def main(argv: list[str] | None = None) -> int:
         help="Compatibility flag; agent-preflight always writes one JSON object to stdout.",
     )
 
+    claude_pretooluse_parser = subparsers.add_parser(
+        "claude-pretooluse",
+        help="Experimental: translate one Claude Code Edit PreToolUse event through agent-preflight.",
+        description=(
+            "EXPERIMENTAL: translate one Claude Code Edit PreToolUse command-hook event through the "
+            "agent-neutral preflight contract. A CLU allow remains eligible for separate approval only and "
+            "returns Claude Code's normal permission ask response; it never grants automatic permission."
+        ),
+    )
+    claude_pretooluse_parser.add_argument(
+        "--policy",
+        required=True,
+        help="Absolute project-local CLU source-mutation policy path.",
+    )
+
     verify_parser = subparsers.add_parser(
         "verify", help="Verify a decision artifact hash.", description=f"{HELP_BOUNDARY} Verify a decision artifact hash."
     )
@@ -1101,6 +1116,10 @@ def main(argv: list[str] | None = None) -> int:
             from .agent_preflight import main as agent_preflight_main
 
             return agent_preflight_main([])
+        if args.command == "claude-pretooluse":
+            from .claude_code_pretooluse import main as claude_pretooluse_main
+
+            return claude_pretooluse_main(["--policy", args.policy])
         if args.command == "verify":
             result = verify_decision_artifact(Path(args.decision))
             print_payload(result, json_output=bool(args.json))

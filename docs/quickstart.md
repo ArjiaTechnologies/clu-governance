@@ -1,6 +1,6 @@
 # Quick Start
 
-CLU Governance `0.1.0a2` is a local pre-alpha developer tool. The core CLI has no runtime third-party dependencies.
+CLU Governance `0.1.0a3` is a local pre-alpha developer tool. The core CLI has no runtime third-party dependencies.
 
 ## Install from a local checkout
 
@@ -59,6 +59,16 @@ clu-governance agent-preflight --json < preflight-input.json
 The adapter writes no decision file, does not start an agent subprocess, and does not modify the controlled repository. Its default operation leaves no CLU state: no cache, daemon, background service, global configuration, keychain entry, hook, or database. To remove the integration, remove the calling shell/CI step and any local preflight input or redirected evidence file your own workflow created. No service, repository hook, or vendor-specific configuration is installed by CLU.
 
 See the full [generic agent preflight contract](cli-contract.md#generic-agent-preflight).
+
+## Experimental Claude Code PreToolUse adapter
+
+For one existing-file `Edit` hook, the portable experimental adapter translates
+Claude Code input into the generic preflight contract. It has no policy engine
+of its own. A CLU allow returns Claude Code's `ask` response, so the normal
+Claude permission flow remains separate; it never becomes automatic approval
+or mutation application. The documented setup is project-local and leaves no
+default residual CLU state. See [the full adapter guide](claude-code-pretooluse.md)
+for Ubuntu Linux/x86_64 setup, supported scope, disable, and uninstall steps.
 
 ## Experimental Git adapter
 

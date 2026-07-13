@@ -105,7 +105,7 @@ class PublicCliContractTest(unittest.TestCase):
     def test_version_is_exact_and_uses_package_surface(self) -> None:
         result = run_module("--version")
         self.assertEqual(result.returncode, 0)
-        self.assertEqual(result.stdout, "clu-governance 0.1.0a2\n")
+        self.assertEqual(result.stdout, "clu-governance 0.1.0a3\n")
         self.assertEqual(result.stderr, "")
 
     def test_top_level_and_all_subcommand_help(self) -> None:

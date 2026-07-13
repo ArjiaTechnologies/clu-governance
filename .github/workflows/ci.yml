@@ -18,9 +18,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Confirm supported Linux adapter runner architecture
+        run: test "$(uname -m)" = "x86_64"
       - name: Explain expected platform skips
         run: echo "Linux runs the complete suite and reports expected skips only for tests requiring successful macOS git-adapt execution."
       - run: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest discover -s tests -q
+      - name: Run portable Claude Code PreToolUse contract on Linux
+        run: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest tests/test_claude_code_pretooluse.py -q
       - run: python -m pip install .
       - run: clu-governance --version
       - run: clu-governance protected-source-manifest --json
@@ -102,11 +106,13 @@ jobs:
           with ZipFile(wheels[0]) as bundle:
               names = bundle.namelist()
           assert any(name.endswith("clu_governance/protected_source_manifest.py") for name in names)
+          assert any(name.endswith("clu_governance/claude_code_pretooluse.py") for name in names)
           assert not any(name.startswith("tests/") or ".egg-info" in name or "__pycache__" in name for name in names)
           PY
       - run: python -m venv wheel-venv
       - run: wheel-venv/bin/python -m pip install --no-deps wheelhouse/*.whl
       - run: wheel-venv/bin/clu-governance --version
+      - run: wheel-venv/bin/clu-governance claude-pretooluse --help
       - run: wheel-venv/bin/clu-governance protected-source-manifest --json
       - run: wheel-venv/bin/clu-governance demo-run-all --json
       - run: test -z "$(find wheelhouse -type f ! -name '*.whl' -print)"
@@ -122,6 +128,7 @@ jobs:
       - run: python -m venv editable-venv
       - run: editable-venv/bin/python -m pip install -e .
       - run: editable-venv/bin/clu-governance --version
+      - run: editable-venv/bin/clu-governance claude-pretooluse --help
       - run: editable-venv/bin/clu-governance protected-source-manifest --json
       - run: editable-venv/bin/clu-governance demo-run-all --json
 

@@ -1,7 +1,7 @@
 # CLU Governance
 
 [![CI](https://github.com/ArjiaTechnologies/clu-governance/actions/workflows/ci.yml/badge.svg)](https://github.com/ArjiaTechnologies/clu-governance/actions/workflows/ci.yml)
-[![Pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange)](https://github.com/ArjiaTechnologies/clu-governance/releases/tag/v0.1.0a1)
+[![Pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange)](https://github.com/ArjiaTechnologies/clu-governance/releases)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/downloads/release/python-3120/)
 
 **CLU stands for Cognitive Layer Utility.**
@@ -25,7 +25,7 @@ flowchart TD
 
 ![Terminal demo: a documentation-only README.md request is allowed only as eligible for separate human approval; rollback readiness is verified; a source delete request is denied; no source mutation is authorized or applied.](docs/assets/clu-governance-policy-evidence-demo.gif)
 
-This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. It shows the resulting local policy evidence and rollback-readiness signal only. It does not invoke approval or execution, and it does not authorize or apply a source mutation. The recording was captured with `0.1.0a1`; it documents the stable evidence boundary while this branch prepares `0.1.0a2`.
+This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. It shows the resulting local policy evidence and rollback-readiness signal only. It does not invoke approval or execution, and it does not authorize or apply a source mutation. The recording was captured with `0.1.0a1`; it illustrates the stable evidence boundary retained in `0.1.0a3`.
 
 ## Why CLU?
 
@@ -72,6 +72,7 @@ This release candidate validates that standard command. It does not claim suppor
 
 - Evaluate structured source-mutation requests against a deny-by-default local policy.
 - Run the agent-neutral `agent-preflight` stdin/stdout bridge to obtain existing allow/deny evidence without writing, approving, applying, or starting an agent.
+- Use the experimental Claude Code `PreToolUse` adapter for one existing-file `Edit` hook. A CLU allow maps to Claude Code's normal permission `ask`, never automatic permission approval.
 - Bind requests, proposals, policies, source state, decisions, and rollback evidence with hashes.
 - Keep policy eligibility separate from approval and application.
 - Run a deterministic local allow/deny demonstration and prove rollback inside its temporary workspace.
@@ -97,9 +98,11 @@ Open an [issue](https://github.com/ArjiaTechnologies/clu-governance/issues) for 
 
 ## Pre-alpha boundaries and current limits
 
-> **Pre-alpha:** `0.1.0a2` is for experimentation and integration work. It is not an enterprise security guarantee, authenticated identity system, non-bypassable enforcement layer, immutable audit store, or guarantee that a rollback will succeed outside the documented demo.
+> **Pre-alpha:** `0.1.0a3` is for experimentation and integration work. It is not an enterprise security guarantee, authenticated identity system, non-bypassable enforcement layer, immutable audit store, or guarantee that a rollback will succeed outside the documented demo.
 
 > **Experimental Git adapter:** `git-adapt` is experimental and intended for trusted local repositories in single-user workflows. It is not a sandbox and does not defend against a malicious Git executable, hostile local process, operating-system administrator, concurrent same-user filesystem modification, or tampering after point-in-time verification.
+
+> **Experimental Claude Code adapter:** `claude-pretooluse` is a portable local stdin/stdout hook adapter for a narrow existing-file `Edit` scope. It has no policy engine of its own. A CLU allow remains eligible for a separate approval or permission decision, and therefore returns Claude Code's normal `ask` response rather than automatic permission approval.
 
 Under the documented workflow, source code and generated artifacts remain local. CLU Governance does not claim production readiness, market readiness, authenticated approval, verified human presence, tamper-evident storage, immutable bundles, full-repository governance, universal cross-platform Git-adapter support, independent security validation, customer validation, or competitive superiority. See [claims and limitations](docs/claims-and-limitations.md) and [security boundaries](docs/security-boundaries.md).
 
@@ -108,6 +111,8 @@ Under the documented workflow, source code and generated artifacts remain local.
 - [Quick start and supported installation modes](docs/quickstart.md)
 - [CLI contract](docs/cli-contract.md)
 - [Generic agent preflight contract](docs/cli-contract.md#generic-agent-preflight)
+- [Experimental Claude Code PreToolUse adapter](docs/claude-code-pretooluse.md)
+- [Future signed evidence boundary](docs/future-signed-evidence.md)
 - [Source-mutation policy gate](docs/source-mutation-policy-gate.md)
 - [Experimental Git adapter](docs/git-diff-adapter.md)
 - [Security boundaries](docs/security-boundaries.md)

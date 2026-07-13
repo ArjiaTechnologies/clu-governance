@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.0a3 — Experimental Claude Code PreToolUse prerelease candidate
+
+- Add an experimental, portable Claude Code `PreToolUse` adapter for a narrow
+  existing-file `Edit` scope. It translates through the existing
+  agent-neutral preflight contract; it has no second policy engine.
+- Preserve permission separation by mapping CLU eligibility to Claude Code's
+  `ask` response, never automatic permission approval or mutation application.
+- Document project-local setup, zero default residual state, disable and
+  uninstall paths, Ubuntu Linux/x86_64 fixture coverage, and future signed
+  evidence as a separate unimplemented layer.
+
 ## 0.1.0a2 — Agent-neutral preflight prerelease
 
 - Add `clu-governance agent-preflight --json`, a read-only strict-JSON stdin/stdout pre-tool contract for agent-neutral integrations.
