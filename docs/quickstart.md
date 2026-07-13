@@ -46,6 +46,20 @@ clu-governance evaluate \
 
 The command evaluates and writes evidence; it does not apply a requested mutation.
 
+## Use a generic agent preflight
+
+For an agent-neutral integration, prepare a structured request with your existing local workflow and pass one strict JSON envelope to the stdin/stdout adapter:
+
+```bash
+clu-governance agent-preflight --json < preflight-input.json
+```
+
+`preflight-input.json` must name an absolute local policy path, request path, controlled source root, fixed event timestamp, and sequence index. The command writes one allow/deny evidence JSON object to stdout. An allow means only that the request is eligible for a separate approval decision; it neither authorizes nor applies a mutation.
+
+The adapter writes no decision file, does not start an agent subprocess, and does not modify the controlled repository. To remove the integration, remove the calling shell/CI step and any local preflight input file your own workflow created. No service, repository hook, or vendor-specific configuration is installed by CLU.
+
+See the full [generic agent preflight contract](cli-contract.md#generic-agent-preflight).
+
 ## Experimental Git adapter
 
 `git-adapt` is experimental and only for trusted local, single-user repositories. Read [the adapter boundary](git-diff-adapter.md) before using it.

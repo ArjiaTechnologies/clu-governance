@@ -71,6 +71,7 @@ This release candidate validates that standard command. It does not claim suppor
 ## What it can do today
 
 - Evaluate structured source-mutation requests against a deny-by-default local policy.
+- Run the agent-neutral `agent-preflight` stdin/stdout bridge to obtain existing allow/deny evidence without writing, approving, applying, or starting an agent.
 - Bind requests, proposals, policies, source state, decisions, and rollback evidence with hashes.
 - Keep policy eligibility separate from approval and application.
 - Run a deterministic local allow/deny demonstration and prove rollback inside its temporary workspace.
@@ -106,6 +107,7 @@ Under the documented workflow, source code and generated artifacts remain local.
 
 - [Quick start and supported installation modes](docs/quickstart.md)
 - [CLI contract](docs/cli-contract.md)
+- [Generic agent preflight contract](docs/cli-contract.md#generic-agent-preflight)
 - [Source-mutation policy gate](docs/source-mutation-policy-gate.md)
 - [Experimental Git adapter](docs/git-diff-adapter.md)
 - [Security boundaries](docs/security-boundaries.md)
