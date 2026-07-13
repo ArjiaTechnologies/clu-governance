@@ -13,6 +13,11 @@ The setup creates `.claude/settings.local.json`,
 activated shell environment. Remove only those CLU-specific paths or hook
 entry when uninstalling; retain unrelated `.claude` configuration.
 
+The `--policy` argument must be an absolute path. The committed Claude Code
+configuration uses `${CLAUDE_PROJECT_DIR}`, which Claude expands to an
+absolute project path automatically. Direct CLI testers must supply an
+absolute policy path themselves.
+
 CLU `allow` remains eligible for separate approval only. The hook returns
 Claude Code's `ask` decision; it does not automatically approve or apply an
 edit.

@@ -9,7 +9,7 @@ c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4  ./LICENSE
 b818f0943682c52834d222bc102de911ab799390a19d90c67af64a22ed2cb0eb  ./docs/architecture.md
 2693e0842628b6a1a4b72009cadf56e6ad5fd85ea20ac38775c6b8e88a3815cf  ./docs/assets/clu-governance-policy-evidence-demo.gif
 40c45841a0aa28478a8599cf4ff9a7f269a1f89870e209f06ebd01440a05ffe7  ./docs/claims-and-limitations.md
-2c371f5f845c7b0a393c41e2ba4ca8bf1a8157c91200fb4fa3ce12a2ad1021de  ./docs/claude-code-pretooluse.md
+c29f17a3dba58f7f3b96655a2cf7af0fe902d7a3b714aeb16891215b17f6ea54  ./docs/claude-code-pretooluse.md
 4aec8a6faf271ccb1b757ddb21e3453b933e2989e30c7da5bf07612851b80441  ./docs/cli-contract.md
 4dc8bcbb90cd3e8537ae4e1bf4667400c8852923a27c480cf2f2b7f890810695  ./docs/development-methodology.md
 62e0d8eb49fc74b2ac384cb5ada115cc0517fc3bc46e7cd26d81ba84bbd8712b  ./docs/engineering-decisions.md
@@ -22,7 +22,7 @@ b80a2e353a5b591a52de2bbac42f6c5645f150720e1628f51931aa5d3a14f4d0  ./docs/securit
 a3f7a57650c3088b17bc996a72accb4d831a23e2a88d3b53fdc78ce858b31e77  ./examples/README.md
 42c59d2b9ff87dfe4d253d79974f2a9d851220d158ca0508ac960cbfbde45512  ./examples/claude-code-pretooluse/.claude/clu-governance-policy.json
 9f472ffbfa30c5ce3e8a98cc02e0c135bbfc0994eafc46d4eb497b4907af267a  ./examples/claude-code-pretooluse/.claude/settings.local.json
-b1943ba4db3cad54e5b5cdd0d65431a580bf066bb503a24d1582175aa6dca13b  ./examples/claude-code-pretooluse/README.md
+a11b50fc6820ba59fef71f7d9f647a837ddc1467087b109fcd07864b7c6af8df  ./examples/claude-code-pretooluse/README.md
 e3424dc153b6e3d6a8309c4674ba55022a8d07086cea80a4d7cc752e18629947  ./examples/example_allowed_mutation_request.json
 85383e104da39a401ba24c25257890d9a86a747389c092b3aeabadd600ef8862  ./examples/example_denied_mutation_request.json
 7dd92516e090d915fd0e9be849dc6079f6e82c80807a92ad04bd92d3b77f99bb  ./examples/example_rollback_snapshot.json
