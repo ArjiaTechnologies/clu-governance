@@ -21,6 +21,12 @@ flowchart TD
 
 > An `allow` result means only that a request is eligible for a separate approval decision. It does **not** authorize, apply, stage, commit, or push a mutation.
 
+## 15-second evidence-only demo
+
+![Terminal demo: a documentation-only README.md request is allowed only as eligible for separate human approval; rollback readiness is verified; a source delete request is denied; no source mutation is authorized or applied.](docs/assets/clu-governance-policy-evidence-demo.gif)
+
+This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. It shows the resulting local policy evidence and rollback-readiness signal only. It does not invoke approval or execution, and it does not authorize or apply a source mutation.
+
 ## Why CLU?
 
 Coding agents propose changes. CLU does not replace them or decide whether a change is desirable. It supplies a local, deterministic policy-and-evidence checkpoint before another tool or person considers applying a mutation.
