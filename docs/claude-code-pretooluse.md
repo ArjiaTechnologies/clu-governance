@@ -127,6 +127,11 @@ The sample policy allows only `README.md` modification by declared actor
 `claude_code` in scope `claude_code_edit`. Copy and review it before widening
 paths or rules. The adapter does not create either configuration file.
 
+The `--policy` argument must be an absolute path. The committed Claude Code
+configuration uses `${CLAUDE_PROJECT_DIR}`, which Claude expands to an
+absolute project path automatically. Direct CLI testers must supply an
+absolute policy path themselves.
+
 ### Safe disposable-project check
 
 In a disposable project containing `README.md`, ask Claude Code to replace a
@@ -136,6 +141,14 @@ Ask for an edit to another file (for example `notes.txt`) and the adapter
 should return `deny` with `path_not_explicitly_allowed`. Neither result
 applies the edit itself, writes an approval record, starts another agent, or
 leaves a CLU evidence file.
+
+## Troubleshooting
+
+If you invoke `claude-pretooluse` directly instead of through the committed
+Claude Code configuration, pass an absolute path to `--policy`. Claude Code
+expands `${CLAUDE_PROJECT_DIR}` to an absolute project path for the committed
+hook configuration, but a direct CLI invocation does not perform that
+expansion for you.
 
 ## State, disable, and uninstall
 
