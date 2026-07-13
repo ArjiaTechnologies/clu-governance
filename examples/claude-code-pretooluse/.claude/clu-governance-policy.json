@@ -1,0 +1,70 @@
+{
+  "allowed_actor_classes": [
+    "operator"
+  ],
+  "allowed_declared_actor_ids": [
+    "claude_code"
+  ],
+  "allowed_operations": [
+    "modify"
+  ],
+  "allowed_path_globs": [
+    "*.md"
+  ],
+  "allowed_path_prefixes": [],
+  "allowed_paths": [
+    "README.md"
+  ],
+  "allowed_scopes": [
+    "claude_code_edit"
+  ],
+  "default_decision": "deny",
+  "denied_path_globs": [
+    "*.pem",
+    "*.key"
+  ],
+  "denied_path_prefixes": [
+    ".git",
+    "secrets"
+  ],
+  "denied_paths": [
+    ".env",
+    ".env.local"
+  ],
+  "maximum_file_count": 1,
+  "policy_id": "clu-governance-claude-code-edit-example-v1",
+  "rollback_readiness_required": true,
+  "rules": [
+    {
+      "effect": "deny",
+      "operations": [
+        "modify",
+        "delete",
+        "rename",
+        "chmod",
+        "symlink"
+      ],
+      "path_globs": [
+        "*.pem",
+        "*.key"
+      ],
+      "path_prefixes": [
+        ".git",
+        "secrets"
+      ],
+      "rule_id": "deny-sensitive-paths"
+    },
+    {
+      "effect": "allow",
+      "operations": [
+        "modify"
+      ],
+      "paths": [
+        "README.md"
+      ],
+      "rule_id": "allow-readme-edit"
+    }
+  ],
+  "schema_name": "clu_governance_source_mutation_policy.v1",
+  "schema_version": "1"
+}

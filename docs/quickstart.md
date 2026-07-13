@@ -60,6 +60,16 @@ The adapter writes no decision file, does not start an agent subprocess, and doe
 
 See the full [generic agent preflight contract](cli-contract.md#generic-agent-preflight).
 
+## Experimental Claude Code PreToolUse adapter
+
+For one existing-file `Edit` hook, the portable experimental adapter translates
+Claude Code input into the generic preflight contract. It has no policy engine
+of its own. A CLU allow returns Claude Code's `ask` response, so the normal
+Claude permission flow remains separate; it never becomes automatic approval
+or mutation application. The documented setup is project-local and leaves no
+default residual CLU state. See [the full adapter guide](claude-code-pretooluse.md)
+for Ubuntu Linux/x86_64 setup, supported scope, disable, and uninstall steps.
+
 ## Experimental Git adapter
 
 `git-adapt` is experimental and only for trusted local, single-user repositories. Read [the adapter boundary](git-diff-adapter.md) before using it.

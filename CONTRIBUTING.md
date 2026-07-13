@@ -24,6 +24,7 @@ Useful focused checks include:
 ```bash
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest tests/test_protected_source_manifest.py -q
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest tests/test_public_cli.py tests/test_strict_json_boundaries.py -q
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m unittest tests/test_claude_code_pretooluse.py -q
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m clu_governance.cli demo-run-all --json
 ```
 
@@ -39,6 +40,10 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -B -m clu_governance.cli demo-ru
 Do not add network calls, provider integrations, autonomous mutation behavior, or new source-writing behavior without explicit design review. An allow decision must remain distinct from approval and application.
 
 Changes to `git-adapt` require focused macOS validation because its supported boundary is macOS/Python/Git and trusted-local single-user repositories. Linux contributors should verify the documented fail-closed result, not expect successful adapter integration execution.
+
+The experimental Claude Code `PreToolUse` adapter is portable stdin/stdout
+code rather than a `git-adapt` path. Its focused test runs on Linux and macOS;
+an allow must remain Claude Code `ask`, never automatic permission approval.
 
 ## Reporting bugs
 
