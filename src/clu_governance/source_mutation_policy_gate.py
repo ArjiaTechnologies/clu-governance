@@ -978,6 +978,21 @@ def main(argv: list[str] | None = None) -> int:
     evaluate_parser.add_argument("--sequence-index", type=int, default=1)
     evaluate_parser.add_argument("--json", action="store_true")
 
+    agent_preflight_parser = subparsers.add_parser(
+        "agent-preflight",
+        help="Evaluate one strict JSON stdin envelope without writing or applying a mutation.",
+        description=(
+            f"{HELP_BOUNDARY} Read one strict JSON adapter envelope from stdin, delegate to the "
+            "existing read-only evaluator, and write one JSON decision to stdout. This command does not "
+            "write an artifact, record approval, apply a mutation, or start an agent subprocess."
+        ),
+    )
+    agent_preflight_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Compatibility flag; agent-preflight always writes one JSON object to stdout.",
+    )
+
     verify_parser = subparsers.add_parser(
         "verify", help="Verify a decision artifact hash.", description=f"{HELP_BOUNDARY} Verify a decision artifact hash."
     )
@@ -1082,6 +1097,10 @@ def main(argv: list[str] | None = None) -> int:
             write_decision_output(decision, output, source_root)
             print_payload(decision, json_output=bool(args.json))
             return 0 if decision["decision"] == "allow" else DENIAL_EXIT_CODE
+        if args.command == "agent-preflight":
+            from .agent_preflight import main as agent_preflight_main
+
+            return agent_preflight_main([])
         if args.command == "verify":
             result = verify_decision_artifact(Path(args.decision))
             print_payload(result, json_output=bool(args.json))

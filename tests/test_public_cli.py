@@ -13,12 +13,14 @@ from pathlib import Path
 from unittest import mock
 
 from clu_governance import cli
+from clu_governance.source_mutation_policy_gate import source_tree_hash
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_SRC = (PACKAGE_ROOT / "src").resolve()
 COMMANDS = (
     "evaluate",
+    "agent-preflight",
     "verify",
     "verify-bundle",
     "protected-source-manifest",
@@ -30,7 +32,11 @@ COMMANDS = (
 )
 
 
-def run_module(*args: str, module: str = "clu_governance.cli") -> subprocess.CompletedProcess[str]:
+def run_module(
+    *args: str,
+    module: str = "clu_governance.cli",
+    stdin: str | None = None,
+) -> subprocess.CompletedProcess[str]:
     env = dict(os.environ)
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     env["PYTHONPATH"] = str(PACKAGE_SRC)
@@ -41,6 +47,7 @@ def run_module(*args: str, module: str = "clu_governance.cli") -> subprocess.Com
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        input=stdin,
         check=False,
     )
 
@@ -98,7 +105,7 @@ class PublicCliContractTest(unittest.TestCase):
     def test_version_is_exact_and_uses_package_surface(self) -> None:
         result = run_module("--version")
         self.assertEqual(result.returncode, 0)
-        self.assertEqual(result.stdout, "clu-governance 0.1.0a1\n")
+        self.assertEqual(result.stdout, "clu-governance 0.1.0a2\n")
         self.assertEqual(result.stderr, "")
 
     def test_top_level_and_all_subcommand_help(self) -> None:
@@ -168,6 +175,66 @@ class PublicCliContractTest(unittest.TestCase):
         invalid = run_module("verify", "--decision", str(allowed_output), "--json")
         self.assertEqual(invalid.returncode, 2)
         self.assertIs(parse_single_json(invalid.stdout)["verified"], False)
+
+    def test_agent_preflight_delegates_without_writing_or_applying(self) -> None:
+        _workspace, init = self.init_workspace()
+        demo_repo = Path(str(init["demo_repo"]))
+        artifacts = Path(str(init["policy_path"])).parent
+        before_tree_hash = source_tree_hash(demo_repo)
+        before_artifacts = sorted(path.name for path in artifacts.iterdir())
+        envelope = {
+            "schema_name": "clu_governance_agent_preflight_input.v1",
+            "schema_version": "1",
+            "policy_path": str(init["policy_path"]),
+            "request_path": str(init["allowed_request_path"]),
+            "source_root": str(demo_repo),
+            "event_timestamp": "2026-06-26T00:00:00Z",
+            "sequence_index": 7,
+        }
+
+        result = run_module("agent-preflight", "--json", stdin=json.dumps(envelope))
+
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        self.assertEqual(result.stderr, "")
+        payload = parse_single_json(result.stdout)
+        self.assertEqual(payload["schema_name"], "clu_governance_source_mutation_policy_decision.v1")
+        self.assertEqual(payload["decision"], "allow")
+        self.assertIs(payload["eligible_for_human_approval"], True)
+        self.assertIs(payload["operator_approval_required"], True)
+        self.assertIs(payload["mutation_authorized"], False)
+        self.assertIs(payload["mutation_applied"], False)
+        self.assertIs(payload["rollback_readiness_verified"], True)
+        self.assertEqual(payload["sequence_index"], 7)
+        self.assertEqual(before_tree_hash, source_tree_hash(demo_repo))
+        self.assertEqual(before_artifacts, sorted(path.name for path in artifacts.iterdir()))
+
+    def test_agent_preflight_preserves_denial_and_stable_input_errors(self) -> None:
+        _workspace, init = self.init_workspace()
+        envelope = {
+            "schema_name": "clu_governance_agent_preflight_input.v1",
+            "schema_version": "1",
+            "policy_path": str(init["policy_path"]),
+            "request_path": str(init["denied_request_path"]),
+            "source_root": str(init["demo_repo"]),
+            "event_timestamp": "2026-06-26T00:00:00Z",
+            "sequence_index": 1,
+        }
+
+        denied = run_module("agent-preflight", stdin=json.dumps(envelope))
+        self.assertEqual(denied.returncode, 2)
+        denied_payload = parse_single_json(denied.stdout)
+        self.assertEqual(denied_payload["decision"], "deny")
+        self.assertEqual(denied_payload["exact_blocker"], "delete_operation_denied")
+        self.assertIs(denied_payload["mutation_applied"], False)
+
+        malformed = run_module("agent-preflight", stdin="{")
+        self.assertEqual(malformed.returncode, 1)
+        malformed_payload = parse_single_json(malformed.stdout)
+        self.assertEqual(malformed_payload["schema_name"], "clu_governance_agent_preflight_error.v1")
+        self.assertEqual(malformed_payload["result"], "input_rejected")
+        self.assertEqual(malformed_payload["exact_blocker"], "agent_preflight_input_malformed_json")
+        self.assertIs(malformed_payload["mutation_authorized"], False)
+        self.assertIs(malformed_payload["mutation_applied"], False)
 
     def test_rejected_approval_records_then_blocks_execution(self) -> None:
         workspace, init, decision = self.allowed_decision()

@@ -25,7 +25,7 @@ flowchart TD
 
 ![Terminal demo: a documentation-only README.md request is allowed only as eligible for separate human approval; rollback readiness is verified; a source delete request is denied; no source mutation is authorized or applied.](docs/assets/clu-governance-policy-evidence-demo.gif)
 
-This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. It shows the resulting local policy evidence and rollback-readiness signal only. It does not invoke approval or execution, and it does not authorize or apply a source mutation.
+This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. It shows the resulting local policy evidence and rollback-readiness signal only. It does not invoke approval or execution, and it does not authorize or apply a source mutation. The recording was captured with `0.1.0a1`; it documents the stable evidence boundary while this branch prepares `0.1.0a2`.
 
 ## Why CLU?
 
@@ -71,6 +71,7 @@ This release candidate validates that standard command. It does not claim suppor
 ## What it can do today
 
 - Evaluate structured source-mutation requests against a deny-by-default local policy.
+- Run the agent-neutral `agent-preflight` stdin/stdout bridge to obtain existing allow/deny evidence without writing, approving, applying, or starting an agent.
 - Bind requests, proposals, policies, source state, decisions, and rollback evidence with hashes.
 - Keep policy eligibility separate from approval and application.
 - Run a deterministic local allow/deny demonstration and prove rollback inside its temporary workspace.
@@ -96,7 +97,7 @@ Open an [issue](https://github.com/ArjiaTechnologies/clu-governance/issues) for 
 
 ## Pre-alpha boundaries and current limits
 
-> **Pre-alpha:** `0.1.0a1` is for experimentation and integration work. It is not an enterprise security guarantee, authenticated identity system, non-bypassable enforcement layer, immutable audit store, or guarantee that a rollback will succeed outside the documented demo.
+> **Pre-alpha:** `0.1.0a2` is for experimentation and integration work. It is not an enterprise security guarantee, authenticated identity system, non-bypassable enforcement layer, immutable audit store, or guarantee that a rollback will succeed outside the documented demo.
 
 > **Experimental Git adapter:** `git-adapt` is experimental and intended for trusted local repositories in single-user workflows. It is not a sandbox and does not defend against a malicious Git executable, hostile local process, operating-system administrator, concurrent same-user filesystem modification, or tampering after point-in-time verification.
 
@@ -106,6 +107,7 @@ Under the documented workflow, source code and generated artifacts remain local.
 
 - [Quick start and supported installation modes](docs/quickstart.md)
 - [CLI contract](docs/cli-contract.md)
+- [Generic agent preflight contract](docs/cli-contract.md#generic-agent-preflight)
 - [Source-mutation policy gate](docs/source-mutation-policy-gate.md)
 - [Experimental Git adapter](docs/git-diff-adapter.md)
 - [Security boundaries](docs/security-boundaries.md)

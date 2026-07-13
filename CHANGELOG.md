@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0a2 — Agent-neutral preflight prerelease
+
+- Add `clu-governance agent-preflight --json`, a read-only strict-JSON stdin/stdout pre-tool contract for agent-neutral integrations.
+- Reuse the existing source-mutation policy evaluator and return its allow/deny evidence without recording approval, applying a mutation, launching an agent, or creating default persistent state.
+- Document the explicit exit-code, state, uninstall, and future thin-adapter boundaries.
+
 ## 0.1.0a1 — Initial public pre-alpha candidate
 
 - Local-first CLI for deny-by-default source-mutation policy evaluation and evidence artifacts.
