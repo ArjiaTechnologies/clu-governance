@@ -4,10 +4,15 @@ ca65802604c556bb5df9917f5db6eea7cfd6311359d37883f86282c6d5cc579b  ./CHANGELOG.md
 42bdb7d42ee0e768bef200e85eeac14628a1479426477de23dd9ace706bc2b11  ./CONTRIBUTING.md
 c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4  ./LICENSE
 2f73a216be6293aa26b61a9c4b3e15ab4628dcddfe61f2048fe038bb99714dba  ./MANIFEST.in
-7f0c967f2bf3149631ad158616a3a7063e19d4b4b6c88a9b22ac5c85e3515dc6  ./README.md
+c4d3cb779f40638b2d052368ce44b2df1c3ef275300d2843e1bc50ed36f0ee57  ./README.md
 5d9b4505a1bee1ef5d1b88fbeb57ddd1f6ad52b2c2bf965b8d80dc5935ebda1e  ./SECURITY.md
 b818f0943682c52834d222bc102de911ab799390a19d90c67af64a22ed2cb0eb  ./docs/architecture.md
-2693e0842628b6a1a4b72009cadf56e6ad5fd85ea20ac38775c6b8e88a3815cf  ./docs/assets/clu-governance-policy-evidence-demo.gif
+de66024490614fbd4bde477b4842dbecf977d65e1db694f0ad8eefd2174c408f  ./docs/assets/clu-governance-flow-dark.svg
+693a647be87c56b8d2b6e9524f57498debf33f13b1b16bc225446e09224e8048  ./docs/assets/clu-governance-flow-light.svg
+878e8f54d8bef95f14fdc1eb7ab7d32240d89511e0daba989b95b89e3b1a7293  ./docs/assets/clu-governance-flow-mobile-dark.svg
+34b2dfdf260cfbf6ce7a90b8a12eea752be79d9d1fcfe8f2d25f41724e5a54cb  ./docs/assets/clu-governance-flow-mobile-light.svg
+8433ecd069f3858080988088dd6ea4e749050c97582885aaea7955be2a1ae98b  ./docs/assets/clu-governance-policy-evidence-demo.gif
+479eac9ec9e75bcc67a63ae5cbe959591eb8ada791f7909ec2934d53d558fa4c  ./docs/assets/generate_policy_evidence_demo.swift
 40c45841a0aa28478a8599cf4ff9a7f269a1f89870e209f06ebd01440a05ffe7  ./docs/claims-and-limitations.md
 c29f17a3dba58f7f3b96655a2cf7af0fe902d7a3b714aeb16891215b17f6ea54  ./docs/claude-code-pretooluse.md
 4aec8a6faf271ccb1b757ddb21e3453b933e2989e30c7da5bf07612851b80441  ./docs/cli-contract.md
