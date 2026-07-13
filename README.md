@@ -12,20 +12,23 @@ It is for developers experimenting with a deliberate control point between a cod
 
 AI proposes a source change → CLU verifies policy, hashes, and rollback-readiness → CLU produces allow/deny evidence → A separate approval or application step may follow.
 
-```mermaid
-flowchart TD
-    A["AI proposes a source change"] --> B["CLU checks local policy, hashes, and rollback readiness"]
-    B --> C{"Allow or deny evidence"}
-    C --> D["Separate approval or application step"]
-```
+## Evidence before a separate decision
+
+<picture>
+  <source media="(prefers-color-scheme: dark) and (max-width: 700px)" srcset="docs/assets/clu-governance-flow-mobile-dark.svg">
+  <source media="(prefers-color-scheme: light) and (max-width: 700px)" srcset="docs/assets/clu-governance-flow-mobile-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/clu-governance-flow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/clu-governance-flow-light.svg">
+  <img src="docs/assets/clu-governance-flow-light.svg" alt="How CLU Governance evaluates an AI-proposed source change: strict request intake, local policy evaluation, integrity and rollback evidence, an allow or deny evidence result, then separate approval or application outside the CLU boundary.">
+</picture>
 
 > An `allow` result means only that a request is eligible for a separate approval decision. It does **not** authorize, apply, stage, commit, or push a mutation.
 
-## 15-second evidence-only demo
+## Compact evidence-only terminal demo
 
-![Terminal demo: a documentation-only README.md request is allowed only as eligible for separate human approval; rollback readiness is verified; a source delete request is denied; no source mutation is authorized or applied.](docs/assets/clu-governance-policy-evidence-demo.gif)
+![Terminal demo from real CLI JSON: a documentation-only README.md request is allowed only as eligible for separate human approval; rollback readiness and hashes are verified; a source delete request is denied; no source mutation is authorized or applied.](docs/assets/clu-governance-policy-evidence-demo.gif)
 
-This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. It shows the resulting local policy evidence and rollback-readiness signal only. It does not invoke approval or execution, and it does not authorize or apply a source mutation. The recording was captured with `0.1.0a1`; it illustrates the stable evidence boundary retained in `0.1.0a3`.
+This short recording evaluates two requests in a disposable demo workspace: a documentation-only `README.md` change and a delete request for `clu/danger.py`. The selected fields are summarized from real `agent-preflight` CLI JSON. It shows local policy evidence and rollback-readiness signals only. It does not invoke approval or execution, and it does not authorize or apply a source mutation.
 
 ## Why CLU?
 

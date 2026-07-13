@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title description">
+  <title id="title">How CLU Governance evaluates an AI-proposed source change</title>
+  <desc id="description">A technical diagram showing strict request intake, local policy evaluation, integrity and rollback evidence, distinct allow and deny evidence results, and approval or application outside the CLU boundary.</desc>
+  <style>
+    .title{font-family:Arial,Helvetica,sans-serif;font-size:35px;font-weight:700;fill:#F8FAFC}.subtitle{font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:500;fill:#94A3B8}.eyebrow{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;letter-spacing:2.2px;fill:#5EEAD4}.stage{font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;fill:#F8FAFC}.cardtitle{font-family:Arial,Helvetica,sans-serif;font-size:21px;font-weight:700;fill:#F8FAFC}.body{font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:500;fill:#CBD5E1}.small{font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:600;fill:#CBD5E1}.mono{font-family:Menlo,monospace;font-size:14px;font-weight:600;fill:#C4B5FD}.allow{font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;fill:#6EE7B7;letter-spacing:1.2px}.deny{font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;fill:#FCA5A5;letter-spacing:1.2px}.outside{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;fill:#FCD34D;letter-spacing:1.8px}.badge{font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;fill:#CBD5E1}.num{font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;fill:#0B1220}
+  </style>
+  <rect width="1600" height="1000" fill="#0B1220"/>
+  <rect x="24" y="20" width="1552" height="960" rx="20" fill="#0F172A" stroke="#263449" stroke-width="2"/>
+  <text x="68" y="74" class="eyebrow">CLU GOVERNANCE  /  LOCAL EVIDENCE BEFORE MUTATION</text>
+  <text x="68" y="120" class="title">How CLU Governance evaluates an AI-proposed source change</text>
+  <text x="68" y="151" class="subtitle">CLU checks a proposal and produces evidence before a separate approval or application decision.</text>
+
+  <rect x="52" y="182" width="1496" height="640" rx="16" fill="#0B1324" stroke="#334155" stroke-width="2" stroke-dasharray="7 7"/>
+  <rect x="76" y="169" width="344" height="28" rx="8" fill="#12263A"/>
+  <text x="92" y="189" class="eyebrow" style="font-size:11px;fill:#7DD3FC">CLU-OWNED EVALUATION BOUNDARY</text>
+
+  <g fill="none" stroke="#50637C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M382 354H420"/><path d="M748 354H786"/><path d="M1114 354H1152"/><path d="M1312 490V526"/><path d="M1312 526H1104"/><path d="M1312 526H1152"/>
+  </g>
+  <g fill="#50637C"><path d="M416 348l10 6-10 6z"/><path d="M782 348l10 6-10 6z"/><path d="M1148 348l10 6-10 6z"/></g>
+
+  <g>
+    <rect x="76" y="222" width="306" height="268" rx="12" fill="#131F33" stroke="#334155" stroke-width="2"/>
+    <circle cx="108" cy="258" r="16" fill="#5EEAD4"/><text x="103" y="263" class="num">1</text>
+    <path d="M145 247h20l8 8v22h-28zM165 247v10h10M151 265h16M151 272h12" fill="none" stroke="#7DD3FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="190" y="262" class="stage">PROPOSAL</text><text x="104" y="306" class="cardtitle">AI / coding agent</text>
+    <text x="104" y="342" class="body"><tspan x="104" dy="0">Tool name · target path</tspan><tspan x="104" dy="24">Proposed operation</tspan></text>
+    <text x="104" y="402" class="body"><tspan x="104" dy="0">Declared actor</tspan><tspan x="104" dy="24">Requested scope</tspan></text>
+    <text x="104" y="456" class="mono">Edit  README.md  replace</text>
+  </g>
+  <g>
+    <rect x="420" y="222" width="328" height="268" rx="12" fill="#131F33" stroke="#334155" stroke-width="2"/>
+    <circle cx="452" cy="258" r="16" fill="#7DD3FC"/><text x="447" y="263" class="num">2</text>
+    <path d="M488 248h22v28h-22zM494 255h10M494 262h10M494 269h7" fill="none" stroke="#7DD3FC" stroke-width="2" stroke-linecap="round"/>
+    <text x="528" y="262" class="stage">REQUEST INTAKE</text><text x="444" y="306" class="cardtitle">Strict and bounded</text>
+    <text x="444" y="342" class="body"><tspan x="444" dy="0">Strict JSON · duplicate-key</tspan><tspan x="444" dy="24">rejection</tspan></text>
+    <text x="444" y="402" class="body"><tspan x="444" dy="0">Schema validation</tspan><tspan x="444" dy="24">Path normalization</tspan></text>
+    <text x="444" y="456" class="mono">one envelope / one result</text>
+  </g>
+  <g>
+    <rect x="786" y="222" width="328" height="268" rx="12" fill="#131F33" stroke="#334155" stroke-width="2"/>
+    <circle cx="818" cy="258" r="16" fill="#A78BFA"/><text x="813" y="263" class="num">3</text>
+    <path d="M853 249l13-7 13 7v12c0 9-6 15-13 18-7-3-13-9-13-18zM860 260l4 4 8-9" fill="none" stroke="#C4B5FD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="896" y="262" class="stage">LOCAL POLICY</text><text x="810" y="306" class="cardtitle">Deny by default</text>
+    <text x="810" y="342" class="body"><tspan x="810" dy="0">Actor + scope rules</tspan><tspan x="810" dy="24">Operation and path allowlists</tspan></text>
+    <text x="810" y="402" class="body"><tspan x="810" dy="0">Explicit allowed paths</tspan><tspan x="810" dy="24">Explicit denied paths</tspan></text>
+    <text x="810" y="456" class="mono">policy determines eligibility</text>
+  </g>
+  <g>
+    <rect x="1152" y="222" width="320" height="268" rx="12" fill="#131F33" stroke="#334155" stroke-width="2"/>
+    <circle cx="1184" cy="258" r="16" fill="#FBBF24"/><text x="1179" y="263" class="num">4</text>
+    <path d="M1218 249h23v28h-23zM1224 255h11M1224 262h11M1224 269h7" fill="none" stroke="#FCD34D" stroke-width="2" stroke-linecap="round"/>
+    <text x="1260" y="262" class="stage">INTEGRITY + RECOVERY</text><text x="1176" y="306" class="cardtitle">Evidence binds state</text>
+    <text x="1176" y="342" class="body"><tspan x="1176" dy="0">Proposal + source-state</tspan><tspan x="1176" dy="24">+ before-file hashes</tspan></text>
+    <text x="1176" y="402" class="body"><tspan x="1176" dy="0">Rollback snapshot</tspan><tspan x="1176" dy="24">Readiness check</tspan></text>
+    <text x="1176" y="456" class="mono">verified before a decision</text>
+  </g>
+
+  <g>
+    <rect x="76" y="548" width="1028" height="254" rx="12" fill="#111D31" stroke="#45627F" stroke-width="2"/>
+    <circle cx="108" cy="584" r="16" fill="#38BDF8"/><text x="103" y="589" class="num">5</text>
+    <text x="140" y="590" class="stage">CLU EVIDENCE RESULT</text><text x="140" y="620" class="body"><tspan x="140" dy="0">The result records local policy eligibility.</tspan><tspan x="140" dy="22">It never authorizes or applies a mutation.</tspan></text>
+    <rect x="100" y="676" width="462" height="110" rx="8" fill="#0D2A29" stroke="#23856D" stroke-width="1.5"/>
+    <text x="124" y="704" class="allow">ALLOW / ELIGIBLE</text><text x="124" y="730" class="small"><tspan x="124" dy="0">Separate approval required</tspan><tspan x="124" dy="20">authorized: false · applied: false</tspan></text><text x="124" y="768" class="mono">Claude adapter → ask</text>
+    <rect x="588" y="676" width="482" height="110" rx="8" fill="#321C26" stroke="#A94D61" stroke-width="1.5"/>
+    <text x="612" y="704" class="deny">DENY / BLOCKED</text><text x="612" y="730" class="small"><tspan x="612" dy="0">Exact blocker + reason code</tspan><tspan x="612" dy="20">No mutation applied</tspan></text><text x="612" y="768" class="mono">configured integration stops tool action</text>
+  </g>
+  <g>
+    <rect x="1152" y="548" width="320" height="254" rx="12" fill="#1E1B15" stroke="#8A6A30" stroke-width="2"/>
+    <text x="1176" y="580" class="outside">OUTSIDE CLU BOUNDARY</text><text x="1176" y="614" class="cardtitle">Separate decision</text>
+    <path d="M1178 644h24M1190 632v24" stroke="#FCD34D" stroke-width="2" stroke-linecap="round"/>
+    <text x="1212" y="650" class="body">Claude permission prompt</text><text x="1212" y="682" class="body">Human / operator approval</text><text x="1212" y="714" class="body">Separate application step</text><text x="1176" y="752" class="mono" style="fill:#FCD34D">CLU does not execute mutation</text>
+  </g>
+  <g>
+    <rect x="76" y="850" width="174" height="44" rx="8" fill="#152238" stroke="#334155"/><text x="100" y="878" class="badge">Local-first</text>
+    <rect x="266" y="850" width="244" height="44" rx="8" fill="#152238" stroke="#334155"/><text x="290" y="878" class="badge">Zero runtime dependencies</text>
+    <rect x="526" y="850" width="136" height="44" rx="8" fill="#152238" stroke="#334155"/><text x="550" y="878" class="badge">No daemon</text>
+    <rect x="678" y="850" width="230" height="44" rx="8" fill="#152238" stroke="#334155"/><text x="702" y="878" class="badge">No runtime network call</text>
+    <rect x="924" y="850" width="270" height="44" rx="8" fill="#152238" stroke="#334155"/><text x="948" y="878" class="badge">No default persistent state</text>
+    <rect x="1210" y="850" width="262" height="44" rx="8" fill="#18273A" stroke="#5EEAD4"/><text x="1234" y="878" class="badge" style="fill:#5EEAD4">Allow is not approval</text>
+  </g>
+  <text x="76" y="944" class="subtitle" style="font-size:15px">Evidence-only preflight · deterministic local evaluation · approval and application remain separate.</text>
+</svg>
