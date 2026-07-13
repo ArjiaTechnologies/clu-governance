@@ -1,7 +1,8 @@
 # Experimental Claude Code PreToolUse adapter
 
 This optional integration is a thin, local command hook over CLU Governance's
-agent-neutral `agent-preflight` contract. It supports one narrow shape:
+agent-neutral `agent-preflight` contract. It is prepared for the unreleased
+`0.1.0a3` candidate and supports one narrow shape:
 
 - Claude Code `PreToolUse` events for the existing-file `Edit` tool;
 - one unique `old_string` replacement (`replace_all: false`); and

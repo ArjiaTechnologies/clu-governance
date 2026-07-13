@@ -9,7 +9,7 @@ from clu_governance import __version__
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PUBLIC_VERSION = "0.1.0a2"
+PUBLIC_VERSION = "0.1.0a3"
 
 
 class PublicReleaseCandidateTests(unittest.TestCase):

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0a3 — Experimental Claude Code PreToolUse prerelease candidate
 
 - Add an experimental, portable Claude Code `PreToolUse` adapter for a narrow
   existing-file `Edit` scope. It translates through the existing

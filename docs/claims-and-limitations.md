@@ -1,6 +1,6 @@
 # Claims and Limitations
 
-CLU Governance `0.1.0a2` may be described as a local-first policy and evidence layer for AI-proposed source changes under its documented workflow. It provides deterministic policy evaluation, structured hash validation where implemented, rollback-readiness validation, separate eligibility and approval artifacts, strict JSON handling, exact protected-source manifests, and point-in-time bundle verification.
+CLU Governance `0.1.0a3` may be described as a local-first policy and evidence layer for AI-proposed source changes under its documented workflow. It provides deterministic policy evaluation, structured hash validation where implemented, rollback-readiness validation, separate eligibility and approval artifacts, strict JSON handling, exact protected-source manifests, and point-in-time bundle verification.
 
 The documented standard setuptools editable install reconciles one active editable distribution record with one generated source-adjacent companion metadata directory. The generated metadata is disposable and excluded from the protected set. The manifest does not protect all of `site-packages`.
 

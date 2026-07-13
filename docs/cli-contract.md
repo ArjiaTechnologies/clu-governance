@@ -1,9 +1,9 @@
 # CLI Contract
 
-Distribution version: `0.1.0a2`
+Distribution version: `0.1.0a3`
 Executable: `clu-governance`
 
-`--version` prints `clu-governance 0.1.0a2`. Valid `--json` commands write one complete JSON object to stdout. Usage errors use stderr and exit `2`; governed denials and structural blocks also use exit `2`; bounded unexpected failures use exit `1`.
+`--version` prints `clu-governance 0.1.0a3`. Valid `--json` commands write one complete JSON object to stdout. Usage errors use stderr and exit `2`; governed denials and structural blocks also use exit `2`; bounded unexpected failures use exit `1`.
 
 ## Core commands
 

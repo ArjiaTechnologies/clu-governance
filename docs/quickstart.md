@@ -1,6 +1,6 @@
 # Quick Start
 
-CLU Governance `0.1.0a2` is a local pre-alpha developer tool. The core CLI has no runtime third-party dependencies.
+CLU Governance `0.1.0a3` is a local pre-alpha developer tool. The core CLI has no runtime third-party dependencies.
 
 ## Install from a local checkout
 
