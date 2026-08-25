@@ -79,6 +79,7 @@ This release candidate validates that standard command. It does not claim suppor
 - Run the agent-neutral `agent-preflight` stdin/stdout bridge to obtain existing allow/deny evidence without writing, approving, applying, or starting an agent.
 - Use the experimental Claude Code `PreToolUse` adapter for one existing-file `Edit` hook. A CLU allow maps to Claude Code's normal permission `ask`, never automatic permission approval.
 - Bind requests, proposals, policies, source state, decisions, and rollback evidence with hashes.
+- Create and verify canonical unsigned evidence envelopes that bind the decision, policy, request, proposal, source snapshot, rollback artifact, and execution projection entirely offline.
 - Keep policy eligibility separate from approval and application.
 - Run a deterministic local allow/deny demonstration and prove rollback inside its temporary workspace.
 - Report an exact protected-source manifest for source, standard setuptools editable, and wheel installs.
@@ -117,6 +118,8 @@ Under the documented workflow, source code and generated artifacts remain local.
 - [CLI contract](docs/cli-contract.md)
 - [Generic agent preflight contract](docs/cli-contract.md#generic-agent-preflight)
 - [Experimental Claude Code PreToolUse adapter](docs/claude-code-pretooluse.md)
+- [Versioned product roadmap](ROADMAP.md)
+- [Unsigned offline evidence envelopes](docs/cli-contract.md#unsigned-offline-evidence-envelopes)
 - [Future signed evidence boundary](docs/future-signed-evidence.md)
 - [Source-mutation policy gate](docs/source-mutation-policy-gate.md)
 - [Experimental Git adapter](docs/git-diff-adapter.md)

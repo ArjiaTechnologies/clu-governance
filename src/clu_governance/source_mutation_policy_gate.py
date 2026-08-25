@@ -993,6 +993,28 @@ def main(argv: list[str] | None = None) -> int:
         help="Compatibility flag; agent-preflight always writes one JSON object to stdout.",
     )
 
+    evidence_envelope_parser = subparsers.add_parser(
+        "evidence-envelope",
+        help="Bind an existing policy decision into unsigned, offline-verifiable evidence.",
+        description=(
+            f"{HELP_BOUNDARY} Read one strict policy-decision JSON object from stdin and emit a "
+            "canonical unsigned evidence envelope. This records no approval, applies no mutation, "
+            "authenticates no identity, and makes no network call."
+        ),
+    )
+    evidence_envelope_parser.add_argument("--json", action="store_true")
+
+    verify_evidence_parser = subparsers.add_parser(
+        "verify-evidence-envelope",
+        help="Verify one unsigned evidence envelope and every cross-artifact binding offline.",
+        description=(
+            f"{HELP_BOUNDARY} Verify strict canonical unsigned evidence from stdin, including its "
+            "policy, request, proposal, source, rollback, execution, and approval boundaries. "
+            "A valid result establishes local integrity only, not signer identity or immutable storage."
+        ),
+    )
+    verify_evidence_parser.add_argument("--json", action="store_true")
+
     claude_pretooluse_parser = subparsers.add_parser(
         "claude-pretooluse",
         help="Experimental: translate one Claude Code Edit PreToolUse event through agent-preflight.",
@@ -1116,6 +1138,10 @@ def main(argv: list[str] | None = None) -> int:
             from .agent_preflight import main as agent_preflight_main
 
             return agent_preflight_main([])
+        if args.command in {"evidence-envelope", "verify-evidence-envelope"}:
+            from .evidence_envelope import main as evidence_envelope_main
+
+            return evidence_envelope_main(verify=args.command == "verify-evidence-envelope")
         if args.command == "claude-pretooluse":
             from .claude_code_pretooluse import main as claude_pretooluse_main
 

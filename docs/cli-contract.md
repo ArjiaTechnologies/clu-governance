@@ -9,6 +9,8 @@ Executable: `clu-governance`
 
 - `evaluate` evaluates a request against a local policy and writes a decision artifact. It does not mutate source.
 - `agent-preflight` reads one strict JSON envelope from stdin and writes one existing policy-decision JSON object to stdout. It does not write an artifact, record approval, apply a mutation, start an agent, or start a subprocess.
+- `evidence-envelope` binds one existing policy decision from stdin into canonical, unsigned, offline-verifiable evidence without granting approval or writing a file.
+- `verify-evidence-envelope` verifies one strict unsigned envelope from stdin, including exact policy/request/proposal/source/rollback/execution binding and approval separation.
 - `claude-pretooluse` is an experimental Claude Code `PreToolUse` command-hook translation for one existing-file `Edit`. It calls `agent-preflight`; it does not contain policy rules, apply a mutation, or grant Claude Code automatic permission.
 - `verify` verifies a decision artifact hash.
 - `demo-init`, `demo-approve`, `demo-execute`, and `demo-run-all` implement the deterministic local demonstration workflow.
@@ -129,6 +131,34 @@ To remove an integration, remove the caller's shell or CI invocation, any caller
 Future thin adapters for Claude Code, Copilot CLI, OpenHands, Codex, Cursor, Aider, or another agent surface may construct this same envelope before their own tool call and consume the JSON evidence. They must remain separate packages or layers: this command is vendor-neutral and does not launch, configure, or claim to enforce any named agent.
 
 `agent-preflight` never records approval, creates an approval artifact, or applies a mutation. A caller must keep approval and any application step separate.
+
+## Unsigned offline evidence envelopes
+
+Pass the complete existing evaluator decision to `evidence-envelope --json` on
+stdin. Its single stdout object uses
+`clu_governance_unsigned_evidence_envelope.v1` and contains an exact,
+domain-separated SHA-256 body plus the original decision. The body binds the
+policy, canonical request, proposal, source tree, decision audit hash, and,
+for an allow result, the rollback artifact and exact execution projection.
+
+Pass that stdout object to `verify-evidence-envelope --json`. A valid envelope
+returns exit `0` and `verified: true`; malformed, duplicate-key, altered,
+swapped-artifact, contradictory-approval, or forged-attestation evidence fails
+closed with exit `2` and one privacy-bounded verification JSON object.
+
+```bash
+clu-governance agent-preflight --json < preflight-input.json \
+  | clu-governance evidence-envelope --json \
+  | clu-governance verify-evidence-envelope --json
+```
+
+Both commands are local stdin/stdout transforms. They create no file, perform
+no policy reevaluation, authorize no source mutation, record no approval, and
+make no network call. The evidence is explicitly **unsigned**: it establishes
+neither signer identity, authenticated human presence, witnessed time, nor
+immutable or tamper-evident storage. A local digest can be recomputed by a
+trusted-local writer; future signatures require the separate key-custody and
+identity design described in [future signed evidence](future-signed-evidence.md).
 
 ## Experimental Claude Code PreToolUse
 
