@@ -21,6 +21,8 @@ PACKAGE_SRC = (PACKAGE_ROOT / "src").resolve()
 COMMANDS = (
     "evaluate",
     "agent-preflight",
+    "evidence-envelope",
+    "verify-evidence-envelope",
     "verify",
     "verify-bundle",
     "protected-source-manifest",

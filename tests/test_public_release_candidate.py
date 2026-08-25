@@ -16,6 +16,7 @@ class PublicReleaseCandidateTests(unittest.TestCase):
     def test_required_public_files_are_present(self) -> None:
         required = {
             "README.md",
+            "ROADMAP.md",
             "LICENSE",
             "SECURITY.md",
             "CONTRIBUTING.md",
