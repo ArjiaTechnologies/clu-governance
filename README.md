@@ -8,6 +8,8 @@
 
 **A local policy and evidence gate for AI-proposed source changes.** CLU Governance evaluates a proposed mutation against local policy, binds the request and evidence with hashes, checks rollback readiness, and produces an `allow` or `deny` result before a separate approval or application step.
 
+Project overview, architecture, and documented limitations: https://arjia.tech/clu-governance
+
 It is for developers experimenting with a deliberate control point between a coding agent and a repository mutation. The core CLI is the primary pre-alpha product: it runs locally, has zero runtime dependencies, and provides deterministic policy, hash, approval-separation, rollback-readiness, and evidence workflows.
 
 AI proposes a source change → CLU verifies policy, hashes, and rollback-readiness → CLU produces allow/deny evidence → A separate approval or application step may follow.
