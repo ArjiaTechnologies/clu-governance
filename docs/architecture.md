@@ -17,6 +17,12 @@ request + policy + source state
 
 The core modules evaluate requests, bind evidence with hashes, validate strict JSON, and run the deterministic demo. The protected-source manifest identifies the active CLU package and relevant metadata. The bundle verifier checks currently observed adapter bundles. The `git-adapt` module is an optional experimental integration that reads one supported local Git working-tree change and emits a local bundle; it does not apply, commit, push, or fetch changes.
 
+The evaluator checks the caller-bound source-tree hash both before and after
+operation and rollback verification. If any source path changes during that
+validation window, including a path unrelated to the requested target, the
+request is denied as stale. This is bounded concurrent-change detection, not
+locking, sandboxing, or protection from a hostile same-user process.
+
 ## Canonical unsigned evidence
 
 `evidence-envelope` accepts an existing evaluator decision and wraps it in a

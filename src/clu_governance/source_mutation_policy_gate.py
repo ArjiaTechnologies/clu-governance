@@ -733,6 +733,16 @@ def evaluate_source_mutation_request(
     rollback_verified, rollback_error = check_rollback_readiness(request, source_root, policy)
     if rollback_error:
         return deny(rollback_error, matched_rule_id=allow_rule)
+    # Operation and rollback verification read the governed tree after the
+    # request-level snapshot check. Close that validation window before
+    # emitting an allow: any concurrent source change makes the request's
+    # source binding stale, even when the requested target itself is unchanged.
+    try:
+        final_source_hash = source_tree_hash(source_root)
+    except Exception:
+        return deny("source_hash_final_verification_failed", matched_rule_id=allow_rule)
+    if final_source_hash != request.get("source_tree_hash"):
+        return deny("source_hash_changed_during_evaluation", matched_rule_id=allow_rule)
     return build_decision(
         request=request,
         policy=policy,
@@ -747,6 +757,7 @@ def evaluate_source_mutation_request(
         rollback_readiness_verified=rollback_verified,
         event_timestamp=event_timestamp,
         sequence_index=sequence_index,
+        verified_source_hash=final_source_hash,
     )
 
 

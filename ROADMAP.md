@@ -26,6 +26,9 @@ authorization to operate a hosted service.
   tests; unknown operations remain denied.
 - Improve trusted-local Git snapshot portability and concurrent-change
   detection without claiming a sandbox or hostile-process protection.
+  The core evaluator now closes its request/operation/rollback validation
+  window with a second full source-tree hash and denies stale decisions;
+  broader Git adapter portability and concurrency work remains open.
 - Add a thin coding-agent adapter only for an officially documented supported
   pre-tool extension point; all adapters must delegate to the same evaluator.
 

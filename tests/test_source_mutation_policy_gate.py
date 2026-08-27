@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from clu_governance import source_mutation_demo_runtime as runtime
 from clu_governance import source_mutation_policy_gate as gate
@@ -252,6 +253,31 @@ class StandaloneGateTest(unittest.TestCase):
         self.assertEqual(allowed["mem0_runs"], 0)
         self.assertEqual(allowed["benchmark_runs"], 0)
         self.assertEqual(allowed["network_calls"], 0)
+
+    def test_concurrent_unrelated_source_change_denies_stale_allow(self) -> None:
+        _workspace, paths = self._init_paths()
+        original_check = gate.check_rollback_readiness
+
+        def mutate_after_rollback_check(
+            request: dict[str, object], source_root: Path, policy: dict[str, object]
+        ) -> tuple[bool, str | None]:
+            result = original_check(request, source_root, policy)
+            (source_root / "CONCURRENT.md").write_text("changed during evaluation\n", encoding="utf-8")
+            return result
+
+        with mock.patch.object(gate, "check_rollback_readiness", side_effect=mutate_after_rollback_check):
+            decision = gate.evaluate_source_mutation_request(
+                policy_path=paths["policy"],
+                request_path=paths["request"],
+                source_root=paths["repo"],
+                event_timestamp=FIXED_TIME,
+            )
+
+        self.assertEqual(decision["decision"], "deny")
+        self.assertEqual(decision["exact_blocker"], "source_hash_changed_during_evaluation")
+        self.assertFalse(decision["eligible_for_human_approval"])
+        self.assertFalse(decision["mutation_authorized"])
+        self.assertFalse(decision["mutation_applied"])
 
     def test_exact_approval_binding_and_successful_rollback(self) -> None:
         workspace, paths = self._init_approve()
