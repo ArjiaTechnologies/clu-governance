@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from . import strict_json
+from . import new_file_proposal as new_file
 from .safe_artifact_io import (
     SafeArtifactWriteError,
     absolute_raw_path,
@@ -40,7 +41,7 @@ DEMO_CREATED_BY = "clu_governance.source_mutation_policy_gate"
 
 ALLOWED_DECISIONS = {"allow", "deny"}
 ALLOWED_EFFECTS = {"allow", "deny"}
-SAFE_OPERATION_SET = {"modify"}
+SAFE_OPERATION_SET = {"modify", "create"}
 UNSUPPORTED_OPERATIONS = {"delete", "rename", "chmod", "symlink", "binary_replace"}
 DENIAL_EXIT_CODE = 2
 HELP_BOUNDARY = (
@@ -220,6 +221,9 @@ def canonical_request_hash(request: dict[str, Any]) -> str:
 def normalized_operation_binding(operations: list[dict[str, Any]]) -> list[dict[str, Any]]:
     normalized: list[dict[str, Any]] = []
     for operation in operations:
+        if operation.get("operation") == "create":
+            normalized.append(dict(new_file.validate_operation(operation)))
+            continue
         normalized.append(
             {
                 "operation": operation.get("operation"),
@@ -483,11 +487,16 @@ def operation_matches_rule(operation: dict[str, Any], rule: dict[str, Any]) -> b
     op = str(operation.get("operation"))
     rel_path = str(operation.get("path"))
     operations = rule.get("operations") or []
+    if op == "create" and rule.get("effect") == "allow" and "create" not in operations:
+        return False
     if operations and op not in operations:
         return False
     exact = normalize_pattern_list(rule.get("paths"))
     prefixes = normalize_pattern_list(rule.get("path_prefixes"))
     globs = [str(item).replace("\\", "/") for item in (rule.get("path_globs") or []) if isinstance(item, str)]
+    if op == "create" and rule.get("effect") == "deny":
+        rel_path = rel_path.casefold()
+        exact, prefixes, globs = ([item.casefold() for item in group] for group in (exact, prefixes, globs))
     if exact or prefixes or globs:
         return match_path(rel_path, exact=exact, prefixes=prefixes, globs=globs)
     return True
@@ -531,6 +540,18 @@ def check_request_hashes(request: dict[str, Any], source_root: Path) -> str | No
 
 
 def check_rollback_readiness(request: dict[str, Any], source_root: Path, policy: dict[str, Any]) -> tuple[bool, str | None]:
+    if any(operation.get("operation") == "create" for operation in request.get("operations", []) if isinstance(operation, dict)):
+        readiness = request.get("rollback_readiness")
+        artifact_path = readiness.get("artifact_path") if isinstance(readiness, dict) else None
+        if isinstance(artifact_path, str) and artifact_path_has_unsafe_part(Path(artifact_path)):
+            return False, "rollback_artifact_unsafe_path_denied"
+        if isinstance(artifact_path, str) and is_relative_to(Path(artifact_path).resolve(strict=False), source_root):
+            return False, "create_rollback_must_be_outside_source"
+        try:
+            new_file.validate_rollback(request, request["operations"][0], ROLLBACK_SCHEMA_NAME)
+        except new_file.NewFileProposalError as exc:
+            return False, str(exc)
+        return True, None
     if not policy.get("rollback_readiness_required", True):
         return True, None
     _, rollback_error = validate_rollback_artifact_contents(
@@ -543,6 +564,14 @@ def check_rollback_readiness(request: dict[str, Any], source_root: Path, policy:
 
 def check_operations(policy: dict[str, Any], request: dict[str, Any], source_root: Path) -> tuple[list[dict[str, Any]], str | None, str | None, str | None]:
     operations = request.get("operations", [])
+    has_create = any(isinstance(operation, dict) and operation.get("operation") == "create" for operation in operations)
+    if has_create:
+        if len(operations) != 1:
+            return [], None, None, "create_requires_single_operation"
+        operation_lists = [policy.get("allowed_operations")]
+        operation_lists.extend(rule["operations"] for rule in policy.get("rules", []) if "operations" in rule)
+        if any(not isinstance(items, list) or any(not isinstance(item, str) for item in items) for items in operation_lists):
+            return [], None, None, "create_policy_operations_invalid"
     maximum = int(policy.get("maximum_file_count", 0))
     if len(operations) > maximum:
         return [], None, None, "maximum_file_count_exceeded"
@@ -568,18 +597,22 @@ def check_operations(policy: dict[str, Any], request: dict[str, Any], source_roo
         if op_name not in SAFE_OPERATION_SET or op_name not in allowed_operations:
             return checked, matched_allow_rule, matched_deny_rule, "unknown_or_disallowed_operation_denied"
         try:
-            rel_path = normalize_relative_path(raw_operation.get("path"))
+            rel_path = (new_file.canonical_create_path(raw_operation.get("path")) if op_name == "create"
+                        else normalize_relative_path(raw_operation.get("path")))
             if path_has_sensitive_name(rel_path):
                 return checked, matched_allow_rule, matched_deny_rule, "sensitive_path_denied"
             target = resolve_inside_source_root(source_root, rel_path)
-        except PolicyGateError as exc:
+        except (PolicyGateError, new_file.NewFileProposalError) as exc:
             return checked, matched_allow_rule, matched_deny_rule, str(exc)
         operation = {**raw_operation, "path": rel_path}
         if first_matching_rule(policy, operation, "deny") is not None:
             rule = first_matching_rule(policy, operation, "deny")
             matched_deny_rule = str(rule["rule_id"]) if rule else None
             return checked, matched_allow_rule, matched_deny_rule, "explicit_deny_rule_matched"
-        if match_path(rel_path, exact=denied_paths, prefixes=denied_prefixes, globs=denied_globs):
+        deny_path = rel_path.casefold() if op_name == "create" else rel_path
+        deny_groups = ([item.casefold() for item in group] for group in (denied_paths, denied_prefixes, denied_globs)) if op_name == "create" else (denied_paths, denied_prefixes, denied_globs)
+        deny_exact, deny_prefix, deny_glob = deny_groups
+        if match_path(deny_path, exact=deny_exact, prefixes=deny_prefix, globs=deny_glob):
             return checked, matched_allow_rule, matched_deny_rule, "explicit_denied_path_matched"
         if not match_path(rel_path, exact=allowed_paths, prefixes=allowed_prefixes, globs=allowed_globs):
             return checked, matched_allow_rule, matched_deny_rule, "path_not_explicitly_allowed"
@@ -587,6 +620,15 @@ def check_operations(policy: dict[str, Any], request: dict[str, Any], source_roo
         if allow_rule is None:
             return checked, matched_allow_rule, matched_deny_rule, "allow_rule_missing"
         matched_allow_rule = str(allow_rule["rule_id"])
+        if op_name == "create":
+            try:
+                new_file.validate_proposal(raw_operation, request.get("proposal_body"))
+                parents, _ = new_file.inspect_absent_target(source_root, rel_path)
+                if parents != raw_operation["parent_identities"]:
+                    return checked, matched_allow_rule, matched_deny_rule, "create_parent_identity_mismatch"
+            except new_file.NewFileProposalError as exc:
+                return checked, matched_allow_rule, matched_deny_rule, str(exc)
+            checked.append(dict(raw_operation))
         if op_name == "modify":
             if not target.exists():
                 return checked, matched_allow_rule, matched_deny_rule, "modify_target_missing"
@@ -692,6 +734,7 @@ def evaluate_source_mutation_request(
 ) -> dict[str, Any]:
     policy, policy_hash, policy_load_error = load_policy(policy_path)
     request, request_load_error = load_request(request_path)
+    raw_source_root = source_root
     source_root = source_root.expanduser().resolve(strict=True)
 
     def deny(reason_code: str, reason_text: str | None = None, *, matched_rule_id: str | None = None) -> dict[str, Any]:
@@ -721,6 +764,14 @@ def evaluate_source_mutation_request(
         return deny(request_error)
     assert policy is not None and request is not None
 
+    create_operation = next((op for op in request["operations"] if isinstance(op, dict) and op.get("operation") == "create"), None)
+    create_chain = None
+    if create_operation is not None:
+        try:
+            _, create_chain = new_file.inspect_absent_target(raw_source_root, create_operation.get("path"))
+        except new_file.NewFileProposalError as exc:
+            return deny(str(exc))
+
     actor_scope_error = validate_actor_and_scope(policy, request)
     if actor_scope_error:
         return deny(actor_scope_error)
@@ -733,6 +784,16 @@ def evaluate_source_mutation_request(
     rollback_verified, rollback_error = check_rollback_readiness(request, source_root, policy)
     if rollback_error:
         return deny(rollback_error, matched_rule_id=allow_rule)
+    if create_operation is not None:
+        try:
+            _, current_policy_hash, error = load_policy(policy_path)
+            current_request, request_error = load_request(request_path)
+            if (error or request_error or current_policy_hash != policy_hash
+                    or canonical_request_hash(current_request) != canonical_request_hash(request)):
+                return deny("create_input_changed_during_evaluation", matched_rule_id=allow_rule)
+            new_file.validate_rollback(request, create_operation, ROLLBACK_SCHEMA_NAME)
+        except new_file.NewFileProposalError as exc:
+            return deny(str(exc), matched_rule_id=allow_rule)
     # Operation and rollback verification read the governed tree after the
     # request-level snapshot check. Close that validation window before
     # emitting an allow: any concurrent source change makes the request's
@@ -743,6 +804,15 @@ def evaluate_source_mutation_request(
         return deny("source_hash_final_verification_failed", matched_rule_id=allow_rule)
     if final_source_hash != request.get("source_tree_hash"):
         return deny("source_hash_changed_during_evaluation", matched_rule_id=allow_rule)
+    if create_operation is not None:
+        try:
+            # A tree digest does not include empty directories or parent identity.
+            # Recheck the no-follow target after the last source/artifact reads.
+            parents, final_chain = new_file.inspect_absent_target(raw_source_root, create_operation["path"])
+            if final_chain != create_chain or parents != create_operation["parent_identities"]:
+                return deny("create_parent_identity_changed", matched_rule_id=allow_rule)
+        except new_file.NewFileProposalError as exc:
+            return deny(str(exc), matched_rule_id=allow_rule)
     return build_decision(
         request=request,
         policy=policy,

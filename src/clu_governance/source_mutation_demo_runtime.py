@@ -829,6 +829,8 @@ def _operation_count_summary(
 def _normalized_operation(operation: Any) -> dict[str, Any] | None:
     if not isinstance(operation, dict):
         return None
+    if operation.get("operation") != "modify":
+        return None
     return {
         "operation": operation.get("operation"),
         "path": operation.get("path"),

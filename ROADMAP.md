@@ -21,6 +21,11 @@ authorization to operate a hosted service.
 
 ## 0.2 — bounded policy and change shapes
 
+- Review the [single-file create proposal](docs/new-file-proposals.md) increment:
+  explicit policy opt-in, absent-before state, exact UTF-8 bytes, parent identity,
+  mandatory rollback plan, and final stale-state checks. This is read-only
+  eligibility; new-file application and coding-agent adapters remain future work.
+
 - Expand explicitly allowed source-change shapes only after specifying their
   before/after evidence, path confinement, rollback semantics, and adversarial
   tests; unknown operations remain denied.

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add opt-in read-only evaluation of one absent-before UTF-8 file proposal,
+  including strict paths, exact bytes, local parent identities, and mandatory
+  conditional rollback evidence. Preserve existing modify and adapter contracts.
+- Include the create projection in unsigned offline evidence, deny stale source
+  and artifact observations, and keep demo application restricted to modify.
+
 ## 0.1.0a3 — Experimental Claude Code PreToolUse prerelease candidate
 
 - Add an experimental, portable Claude Code `PreToolUse` adapter for a narrow

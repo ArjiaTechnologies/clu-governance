@@ -110,6 +110,7 @@ jobs:
           assert any(name.endswith("clu_governance/protected_source_manifest.py") for name in names)
           assert any(name.endswith("clu_governance/claude_code_pretooluse.py") for name in names)
           assert any(name.endswith("clu_governance/evidence_envelope.py") for name in names)
+          assert any(name.endswith("clu_governance/new_file_proposal.py") for name in names)
           assert not any(name.startswith("tests/") or ".egg-info" in name or "__pycache__" in name for name in names)
           PY
       - run: python -m venv wheel-venv
@@ -120,6 +121,8 @@ jobs:
       - run: wheel-venv/bin/clu-governance verify-evidence-envelope --help
       - run: wheel-venv/bin/clu-governance protected-source-manifest --json
       - run: wheel-venv/bin/clu-governance demo-run-all --json
+      - name: Verify installed-wheel new-file proposal contract
+        run: wheel-venv/bin/python -B examples/new-file-proposal/demo.py
       - run: test -z "$(find wheelhouse -type f ! -name '*.whl' -print)"
 
   editable_install:
