@@ -1,5 +1,10 @@
 # CLU Governance
 
+The unreleased [bounded new-file proposal](docs/new-file-proposals.md) increment
+adds explicit create eligibility to the agent-neutral preflight: one absent
+UTF-8 file with exact bytes, parent identities, and rollback evidence. It
+does not apply a file or expand the existing coding-agent adapters.
+
 [![CI](https://github.com/ArjiaTechnologies/clu-governance/actions/workflows/ci.yml/badge.svg)](https://github.com/ArjiaTechnologies/clu-governance/actions/workflows/ci.yml)
 [![Pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange)](https://github.com/ArjiaTechnologies/clu-governance/releases)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/downloads/release/python-3120/)

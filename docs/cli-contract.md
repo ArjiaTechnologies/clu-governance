@@ -22,6 +22,11 @@ Run `clu-governance <command> --help` for required arguments and detailed help. 
 
 ## Generic agent preflight
 
+The evaluator also supports the opt-in [bounded new-file proposal](new-file-proposals.md)
+contract: one absent UTF-8 file, explicit create permission, exact proposed bytes,
+parent identities, and mandatory absence/rollback evidence. This adds eligibility
+evidence only; adapters and demo application remain existing-file-only.
+
 `agent-preflight` is the agent-neutral, read-only pre-tool contract. It is intentionally a thin wrapper around the same evaluator used by `evaluate`, so it does not implement a second policy engine or enforce a particular coding agent. It does not start a daemon, service, agent process, or background task.
 
 It is composable evidence before a caller's tool action, not agent enforcement. A caller may use an allow result to decide whether to offer a separate approval or application step. CLU neither approves nor invokes that later step.

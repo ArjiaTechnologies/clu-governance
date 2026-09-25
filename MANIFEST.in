@@ -3,5 +3,5 @@ include ROADMAP.md
 include LICENSE
 include CHECKSUMS.sha256
 recursive-include docs *.md
-recursive-include examples *.md *.json
+recursive-include examples *.md *.json *.py
 recursive-include tests *.py

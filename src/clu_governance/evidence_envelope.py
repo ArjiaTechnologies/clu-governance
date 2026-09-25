@@ -14,6 +14,7 @@ import sys
 from typing import Any, TextIO
 
 from . import strict_json
+from . import new_file_proposal as new_file
 from .source_mutation_policy_gate import (
     DECISION_SCHEMA_NAME,
     DENIAL_EXIT_CODE,
@@ -144,10 +145,17 @@ def _execution_binding(decision: dict[str, Any]) -> dict[str, Any]:
     if binding.get("checked_operation_digest") != canonical_sha256(checked):
         _fail("evidence_execution_binding_checked_operations_mismatch")
     paths: list[str] = []
-    hashes: list[str] = []
+    hashes: list[str | None] = []
     for operation in operations:
-        if not isinstance(operation, dict) or operation.get("operation") != "modify":
+        if not isinstance(operation, dict) or operation.get("operation") not in {"modify", "create"}:
             _fail("evidence_execution_binding_operation_invalid")
+        if operation.get("operation") == "create":
+            try:
+                new_file.validate_operation(operation)
+            except new_file.NewFileProposalError:
+                _fail("evidence_execution_binding_create_contract_invalid")
+            if len(operations) != 1:
+                _fail("evidence_execution_binding_create_contract_invalid")
         raw_path = operation.get("path")
         try:
             normalized = normalize_relative_path(raw_path)
@@ -156,7 +164,7 @@ def _execution_binding(decision: dict[str, Any]) -> dict[str, Any]:
         if normalized != raw_path or normalized in paths:
             _fail("evidence_execution_binding_path_invalid")
         paths.append(normalized)
-        hashes.append(_digest(operation.get("before_sha256"), blocker="evidence_execution_binding_before_hash_invalid"))
+        hashes.append(None if operation["operation"] == "create" else _digest(operation.get("before_sha256"), blocker="evidence_execution_binding_before_hash_invalid"))
     if binding.get("normalized_target_paths") != paths or binding.get("before_file_hashes") != hashes:
         _fail("evidence_execution_binding_operation_projection_mismatch")
     if checked != operations:
